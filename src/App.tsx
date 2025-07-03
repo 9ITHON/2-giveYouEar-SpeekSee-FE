@@ -1,7 +1,14 @@
 import { Route, Routes } from 'react-router-dom';
-import MainPage from './pages/Main/MainPage';
-import PracticePage from './pages/Practice/PracticePage';
+import Login from './pages/Auth/Login';
+import Signup from './pages/Auth/Signup';
+import Home from './pages/Home/Home';
+import Practice from './pages/Script/Practice';
 import styled from 'styled-components';
+import Test from './pages/Test/Test';
+import Review from './pages/Review/Review';
+import Mypage from './pages/Mypage/Mypage';
+import Dashboard from './pages/Dashboard/Dashboard';
+import Select from './pages/Script/Select';
 
 const AppStyle = styled.div`
   display: flex;
@@ -20,10 +27,17 @@ function App() {
     <AppStyle>
       <Common>
         <Routes>
-          <Route path="/" element={<MainPage />} />
-          <Route path="practice">
-            <Route path=":id" element={<PracticePage />} />
+          <Route index path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
+          <Route path="home" element={<Home />} />
+          <Route path="mypage" element={<Mypage />} />
+          <Route path="test" element={<Test />} />
+          <Route path="review" element={<Review />} />
+          <Route path="script">
+            <Route path="select" element={<Select />} />
+            <Route path="practice/:session_id/:script_id" element={<Practice />} />
           </Route>
+          <Route path="dashboard" element={<Dashboard />} />
         </Routes>
       </Common>
     </AppStyle>

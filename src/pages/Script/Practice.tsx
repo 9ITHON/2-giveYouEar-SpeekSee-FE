@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 import ScriptSection from './components/ScriptSection';
 import CloseButtonImg from '../../assets/daily-script-button.png';
-import { useNavigate } from 'react-router-dom';
 import CloseButton from './components/CloseButton';
 import Divider from './components/Divider';
 import ActivityButtons from './components/ActivityButtons';
 import { useCallback, useState } from 'react';
+import Modal from './components/Modal';
 
 const PracticeStyle = styled.div`
   height: 100%;
@@ -14,7 +14,6 @@ const PracticeStyle = styled.div`
 `;
 
 const Practice = () => {
-  const navigate = useNavigate();
   /** status 소개
    * --------------
    * 0: 녹음 전
@@ -25,6 +24,7 @@ const Practice = () => {
    * 5: 모든 문제 해결
    */
   const [status, setStatus] = useState<number>(0);
+  const [isClosed, setIsClosed] = useState<boolean>(false);
   const [problemNo, setProblemNo] = useState<number>(1);
   const scripts: React.ReactNode[] = [
     '뻗은가지 굽은가지 구부러진 가지 가지가지의\n가지 올라가지 늦가지 찐가지 달린가지\n조롱조롱 맺힌 가지 열린 가지 달린 가지\n도롱조롱 달린 가지 젊은 가지 늙은 가지\n나물할 가지 냉국 탈 가지 가지각색\n가여놓아도 나 못 먹긴 마찬가지.',
@@ -46,9 +46,10 @@ const Practice = () => {
   }, [status]);
   return (
     <PracticeStyle>
+      {isClosed && <Modal setIsClosed={setIsClosed}/>}
       <CloseButton
         onClick={() => {
-          navigate('/');
+          setIsClosed(prev => !prev);
         }}
       >
         <img src={CloseButtonImg} alt="daily-scripts-page-close-button" width="18" height="18" />

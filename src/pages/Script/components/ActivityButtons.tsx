@@ -76,7 +76,12 @@ const ActivityButtons = ({
         </ActivityButton>
       )}
       {status === 5 && (
-        <ActivityButton width={38} icon={HomeIcon} diffSize={14} onClick={() => navigate('/')}>
+        <ActivityButton
+          width={38}
+          icon={HomeIcon}
+          diffSize={14}
+          onClick={() => navigate('/script/select', { replace: true })}
+        >
           나가기
         </ActivityButton>
       )}

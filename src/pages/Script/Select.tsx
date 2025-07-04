@@ -1,4 +1,8 @@
+import List from "../../components/List";
+
 const Select = () => {
-  return <div></div>;
+  return <div>
+    <List />
+  </div>;
 };
 export default Select;

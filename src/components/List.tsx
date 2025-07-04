@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 const ListStyle = styled.div`
+  margin-bottom: 12px;
   border: 1px solid #81b7ff;
   border-radius: 8px;
   padding: 18px 16px;
@@ -17,20 +18,26 @@ const ListTitle = styled.h1`
 const ListDescription = styled.span`
   display: block;
   font-size: 10px;
+  font-weight: 500;
   margin-bottom: 12px;
 `;
 
 const ListDetail = styled.span`
   display: block;
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 16rem;
 `;
 
-const List = () => {
+const List = ({ title, description, detail }) => {
   return (
     <ListStyle>
-      <ListTitle>자기소개</ListTitle>
-      <ListDescription>자신의 닉네임을 넣어 자기소개를 연습해보세요!</ListDescription>
-      <ListDetail>상 / 중 / 하 / @@ / @@</ListDetail>
+      <ListTitle>{title}</ListTitle>
+      <ListDescription>{description}</ListDescription>
+      <ListDetail>{detail}</ListDetail>
     </ListStyle>
   );
 };

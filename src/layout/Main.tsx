@@ -15,15 +15,28 @@ const PageName = styled.h1`
 
 const Main = () => {
   const path = useLocation();
-  const routes: Record<string, string> = {
-    '/review': '복습노트',
+  const mainRoutes: Record<string, Record<string, string>> = {
+    '/home': {
+      nav: 'home',
+    },
+    '/script/select': {
+      nav: 'home',
+    },
+    '/review': {
+      nav: 'review',
+      pagename: '복습 훈련',
+    },
+    '/ranking': { nav: 'ranking', pagename: '순위' },
+    '/settings': { nav: 'settings', pagename: '설정' },
   };
   return (
     <MainLayoutStyle>
       <Header />
-      {routes[path.pathname] && <PageName>{routes[path.pathname]}</PageName>}
+      {mainRoutes[path.pathname]['pagename'] && (
+        <PageName>{mainRoutes[path.pathname]['pagename']}</PageName>
+      )}
       <Outlet />
-      <Footer />
+      <Footer mainRoutes={mainRoutes} />
     </MainLayoutStyle>
   );
 };

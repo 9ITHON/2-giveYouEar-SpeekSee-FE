@@ -31,15 +31,15 @@ function App() {
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
+          <Route path="test" element={<Test />} />
           <Route element={<Main />}>
             <Route path="home" element={<Home />} />
-            <Route path="mypage" element={<Mypage />} />
-            <Route path="test" element={<Test />} />
             <Route path="review" element={<Review />} />
             <Route path="script">
               <Route index path="select" element={<Select />} />
             </Route>
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="mypage" element={<Mypage />} />
           </Route>
           <Route path="script/practice/:session_id/:script_id" element={<Practice />} />
         </Routes>

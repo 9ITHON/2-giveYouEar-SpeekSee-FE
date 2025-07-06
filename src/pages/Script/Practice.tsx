@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import ScriptSection from './components/ScriptSection';
 import CloseButtonImg from '../../assets/png/daily-script-button.png';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import CloseButton from './components/CloseButton';
 import Divider from './components/Divider';
 import ActivityButtons from './components/ActivityButtons';

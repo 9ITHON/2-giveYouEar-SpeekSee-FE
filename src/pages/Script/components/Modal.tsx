@@ -56,7 +56,7 @@ const Modal = ({ setIsClosed }: { setIsClosed: React.Dispatch<React.SetStateActi
         <ModalQuestion>학습을 중단하시겠습니까?</ModalQuestion>
         <ModalPS>학습 내용과 진도는 저장되지 않습니다.</ModalPS>
         <ModalButtons>
-          <ModalButton $type="yes" onClick={() => navigate('/script/select', { replace: true })}>
+          <ModalButton $type="yes" onClick={() => navigate('/script', { replace: true })}>
             네
           </ModalButton>
           <ModalButton

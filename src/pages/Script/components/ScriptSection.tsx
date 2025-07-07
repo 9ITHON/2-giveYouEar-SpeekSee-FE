@@ -40,15 +40,17 @@ const ScriptContent = styled.div<ScriptContentProps>`
 const ScriptSection = ({
   status,
   problemNo,
+  totalStep,
   script,
 }: {
   status: number;
   problemNo: number;
+  totalStep: number;
   script: React.ReactNode;
 }) => {
   return (
     <ScriptSectionStyle>
-      <ProgressBar step={problemNo} />
+      <ProgressBar step={problemNo} totalStep={totalStep} />
       <PracticeDescription>
         {status === 4
           ? '이번 문제의 결과를 확인하세요!'
@@ -56,7 +58,9 @@ const ScriptSection = ({
           ? '문제를 다 풀었어요! 결과를 확인해 보세요!'
           : '버튼을 누른 뒤 아래 문장을 읽어주세요.'}
       </PracticeDescription>
-      {status !== 5 && <ScriptContent $status={status}>{script}</ScriptContent>}
+      {status !== 5 && (
+        <ScriptContent $status={status}>{script ? script : '준비 중...'}</ScriptContent>
+      )}
       {status === 4 && <Result />}
     </ScriptSectionStyle>
   );

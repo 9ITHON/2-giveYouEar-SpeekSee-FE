@@ -26,8 +26,13 @@ const Review = () => {
   ];
   return (
     <ReviewStyle>
-      {reviews.map(review => (
-        <List title={review.title} description={review.description} detail={review.detail} />
+      {reviews.map((review, index) => (
+        <List
+          key={index}
+          title={review.title}
+          description={review.description}
+          detail={review.detail}
+        />
       ))}
     </ReviewStyle>
   );

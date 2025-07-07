@@ -53,7 +53,7 @@ const Footer = ({ mainRoutes }: { mainRoutes: Record<string, Record<string, stri
   const curNav = mainRoutes[location.pathname]['nav'];
   return (
     <FooterStyle>
-      <StyledNavLink to="/home" style={NavLinkStyle}>
+      <StyledNavLink to="/" style={NavLinkStyle}>
         <img
           src={curNav === 'home' ? HomeClickedIcon : HomeIcon}
           alt="홈"
@@ -66,7 +66,7 @@ const Footer = ({ mainRoutes }: { mainRoutes: Record<string, Record<string, stri
         />
         <NavName $isActive={curNav === 'home'}>홈</NavName>
       </StyledNavLink>
-      <StyledNavLink to="/practice" style={NavLinkStyle}>
+      <StyledNavLink to="/study" style={NavLinkStyle}>
         <img
           src={curNav === 'review' ? PracticeClickedIcon : PracticeIcon}
           alt="학습"

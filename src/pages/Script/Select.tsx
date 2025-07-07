@@ -28,8 +28,13 @@ const Select = () => {
   return (
     <div>
       <SelectDescription>연습하고자 하는 분야를 선택해주세요</SelectDescription>
-      {fields.map(field => (
-        <List title={field.title} description={field.description} detail={field.detail} />
+      {fields.map((field, index) => (
+        <List
+          key={index}
+          title={field.title}
+          description={field.description}
+          detail={field.detail}
+        />
       ))}
     </div>
   );

@@ -5,11 +5,12 @@ import Home from './pages/Home/Home';
 import Practice from './pages/Script/Practice';
 import styled from 'styled-components';
 import Test from './pages/Test/Test';
-import Review from './pages/Review/Review';
+import Review from './pages/Study/Review';
 import Mypage from './pages/Mypage/Mypage';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Select from './pages/Script/Select';
 import Main from './layout/Main';
+import Attendance from './pages/Attendance/Attendance';
 
 const AppStyle = styled.div`
   display: flex;
@@ -28,19 +29,17 @@ function App() {
     <AppStyle>
       <Common>
         <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route element={<Main />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/attendance" element={<Attendance />} />
+            <Route path="review" element={<Review />} />
+            <Route path="script" element={<Select />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="settings" element={<Mypage />} />
+          </Route>
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
           <Route path="test" element={<Test />} />
-          <Route element={<Main />}>
-            <Route path="home" element={<Home />} />
-            <Route path="review" element={<Review />} />
-            <Route path="script">
-              <Route index path="select" element={<Select />} />
-            </Route>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="mypage" element={<Mypage />} />
-          </Route>
           <Route path="script/practice/:session_id/:script_id" element={<Practice />} />
         </Routes>
       </Common>

@@ -16,11 +16,15 @@ const PageName = styled.h1`
 const Main = () => {
   const path = useLocation();
   const mainRoutes: Record<string, Record<string, string>> = {
-    '/home': {
+    '/': {
       nav: 'home',
     },
-    '/script/select': {
+    '/script': {
       nav: 'home',
+    },
+    "/attendance": {
+      nav: 'home',
+      pagename: "출석체크"
     },
     '/review': {
       nav: 'review',

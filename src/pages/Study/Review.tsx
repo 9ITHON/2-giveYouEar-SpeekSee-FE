@@ -1,4 +1,10 @@
+import styled from 'styled-components';
 import List from '../../components/List';
+
+const ReviewStyle = styled.div`
+  margin-top: 18px;
+  padding: 0 24px;
+`;
 
 const Review = () => {
   const reviews = [
@@ -19,11 +25,11 @@ const Review = () => {
     },
   ];
   return (
-    <div>
+    <ReviewStyle>
       {reviews.map(review => (
         <List title={review.title} description={review.description} detail={review.detail} />
       ))}
-    </div>
+    </ReviewStyle>
   );
 };
 export default Review;

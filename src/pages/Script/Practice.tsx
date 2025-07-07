@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import ScriptSection from './components/ScriptSection';
-import CloseButtonImg from '../../assets/daily-script-button.png';
+import CloseButtonImg from '../../assets/png/daily-script-button.png';
 import CloseButton from './components/CloseButton';
 import Divider from './components/Divider';
 import ActivityButtons from './components/ActivityButtons';

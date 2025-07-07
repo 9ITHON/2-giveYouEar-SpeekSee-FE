@@ -2,10 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import ActivityButton from './ActivityButton';
 import AnalysingText from './AnalysingText';
-import HomeIcon from '../../../assets/home.png';
-import NextIcon from '../../../assets/next.png';
-import RepeatIcon from '../../../assets/repeat.png';
-import RecordIcon from '../../../assets/record.png';
+import HomeIcon from '../../../assets/png/back-home.png';
+import NextIcon from '../../../assets/png/next.png';
+import RepeatIcon from '../../../assets/png/repeat.png';
+import RecordIcon from '../../../assets/png/record.png';
 
 interface ActivityButtonsProps {
   status: number;

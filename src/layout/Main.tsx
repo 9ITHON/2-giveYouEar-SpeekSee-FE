@@ -28,6 +28,7 @@ const Main = () => {
     },
     '/ranking': { nav: 'ranking', pagename: '순위' },
     '/settings': { nav: 'settings', pagename: '설정' },
+    '/dashboard': { nav: 'settings', pagename: '대시보드' },
   };
   return (
     <MainLayoutStyle>

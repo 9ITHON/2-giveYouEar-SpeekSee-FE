@@ -1,15 +1,18 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
 import Home from './pages/Home/Home';
 import Practice from './pages/Script/Practice';
 import styled from 'styled-components';
 import Test from './pages/Test/Test';
-import Review from './pages/Review/Review';
-import Mypage from './pages/Mypage/Mypage';
+import Review from './pages/Study/Review';
+import Settings from './pages/Settings/Settings';
 import Dashboard from './pages/Dashboard/Dashboard';
-import Select from './pages/Script/Select';
+import Category from './pages/Script/Category';
 import Main from './layout/Main';
+import Attendance from './pages/Attendance/Attendance';
+import Study from './pages/Study/Study';
+import Ranking from './pages/Ranking/Ranking';
 
 const AppStyle = styled.div`
   display: flex;
@@ -28,20 +31,21 @@ function App() {
     <AppStyle>
       <Common>
         <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route element={<Main />}>
+            <Route path="/" element={<Home />} />
+            <Route path="attendance" element={<Attendance />} />
+            <Route path="study" element={<Study />}>
+              <Route path="review" element={<Review />} />
+            </Route>
+            <Route path="script" element={<Category />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="ranking" element={<Ranking />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
           <Route path="test" element={<Test />} />
-          <Route element={<Main />}>
-            <Route path="home" element={<Home />} />
-            <Route path="review" element={<Review />} />
-            <Route path="script">
-              <Route index path="select" element={<Select />} />
-            </Route>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="mypage" element={<Mypage />} />
-          </Route>
-          <Route path="script/practice/:session_id/:script_id" element={<Practice />} />
+          <Route path="script/:script_id" element={<Practice />} />
         </Routes>
       </Common>
     </AppStyle>

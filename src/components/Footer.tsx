@@ -8,6 +8,7 @@ import RankingIcon from '../assets/png/ranking.png';
 import RankingClickedIcon from '../assets/png/ranking-clicked.png';
 import PracticeIcon from '../assets/png/practice.png';
 import PracticeClickedIcon from '../assets/png/practice-clicked.png';
+import type { NavNameProps } from '../types/NavNameProps';
 
 const FooterStyle = styled.nav`
   width: 39em;
@@ -21,7 +22,7 @@ const FooterStyle = styled.nav`
   }
 `;
 
-const NavName = styled.span`
+const NavName = styled.span<NavNameProps>`
   display: block;
   font-size: 10px;
   font-weight: 700;
@@ -53,7 +54,7 @@ const Footer = ({ mainRoutes }: { mainRoutes: Record<string, Record<string, stri
   const curNav = mainRoutes[location.pathname]['nav'];
   return (
     <FooterStyle>
-      <StyledNavLink to="/home" style={NavLinkStyle}>
+      <StyledNavLink to="/" style={NavLinkStyle}>
         <img
           src={curNav === 'home' ? HomeClickedIcon : HomeIcon}
           alt="홈"
@@ -66,9 +67,9 @@ const Footer = ({ mainRoutes }: { mainRoutes: Record<string, Record<string, stri
         />
         <NavName $isActive={curNav === 'home'}>홈</NavName>
       </StyledNavLink>
-      <StyledNavLink to="/practice" style={NavLinkStyle}>
+      <StyledNavLink to="/study" style={NavLinkStyle}>
         <img
-          src={curNav === 'review' ? PracticeClickedIcon : PracticeIcon}
+          src={curNav === 'study' ? PracticeClickedIcon : PracticeIcon}
           alt="학습"
           width="36"
           height="36"
@@ -77,7 +78,7 @@ const Footer = ({ mainRoutes }: { mainRoutes: Record<string, Record<string, stri
             marginLeft: '8px',
           }}
         />
-        <NavName $isActive={curNav === 'review'}>학습</NavName>
+        <NavName $isActive={curNav === 'study'}>학습</NavName>
       </StyledNavLink>
       <StyledNavLink to="/ranking" style={NavLinkStyle}>
         <img

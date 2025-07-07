@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 interface ActivityButtonImgProps {
-  $diffSize: string;
+  $diffSize: number;
 }
 
 const ActivityButtonStyle = styled.button`
@@ -27,7 +27,19 @@ const ActivityButtonImg = styled.img<ActivityButtonImgProps>`
   padding-bottom: ${props => props.$diffSize}px;
 `;
 
-const ActivityButton = ({ icon, width, diffSize, onClick, children }) => {
+const ActivityButton = ({
+  icon,
+  width,
+  diffSize,
+  onClick,
+  children,
+}: {
+  icon: string; // 이미지 import 변수 타입
+  width: number;
+  diffSize: number;
+  onClick?: () => void;
+  children: React.ReactNode;
+}) => {
   return (
     <ActivityButtonStyle onClick={onClick}>
       <ActivityButtonImg src={icon} alt="" width={width} $diffSize={diffSize} />

@@ -37,7 +37,15 @@ const ScriptContent = styled.div<ScriptContentProps>`
   overflox-y: auto;
 `;
 
-const ScriptSection = ({ status, problemNo, script }) => {
+const ScriptSection = ({
+  status,
+  problemNo,
+  script,
+}: {
+  status: number;
+  problemNo: number;
+  script: React.ReactNode;
+}) => {
   return (
     <ScriptSectionStyle>
       <ProgressBar step={problemNo} />

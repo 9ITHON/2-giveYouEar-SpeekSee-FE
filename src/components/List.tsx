@@ -32,7 +32,15 @@ const ListDetail = styled.span`
   width: 16rem;
 `;
 
-const List = ({ title, description, detail }) => {
+const List = ({
+  title,
+  description,
+  detail,
+}: {
+  title: string;
+  description: string;
+  detail: React.ReactNode;
+}) => {
   return (
     <ListStyle>
       <ListTitle>{title}</ListTitle>

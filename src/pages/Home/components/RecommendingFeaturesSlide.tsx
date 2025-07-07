@@ -2,8 +2,9 @@ import styled from 'styled-components';
 import RecommendingFeature from './RecommedingFeature';
 import RecommendingFeatureTitle from './RecommendingFeatureTitle';
 import { useNavigate } from 'react-router-dom';
+import type { SlideStyleProps } from '../types/SlideStyleProps';
 
-const SlideStyle = styled.div`
+const SlideStyle = styled.div<SlideStyleProps>`
   display: flex;
   gap: 16px;
   padding: 0 28px;

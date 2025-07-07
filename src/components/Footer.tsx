@@ -68,7 +68,7 @@ const Footer = ({ mainRoutes }: { mainRoutes: Record<string, Record<string, stri
       </StyledNavLink>
       <StyledNavLink to="/study" style={NavLinkStyle}>
         <img
-          src={curNav === 'review' ? PracticeClickedIcon : PracticeIcon}
+          src={curNav === 'study' ? PracticeClickedIcon : PracticeIcon}
           alt="학습"
           width="36"
           height="36"
@@ -77,7 +77,7 @@ const Footer = ({ mainRoutes }: { mainRoutes: Record<string, Record<string, stri
             marginLeft: '8px',
           }}
         />
-        <NavName $isActive={curNav === 'review'}>학습</NavName>
+        <NavName $isActive={curNav === 'study'}>학습</NavName>
       </StyledNavLink>
       <StyledNavLink to="/ranking" style={NavLinkStyle}>
         <img

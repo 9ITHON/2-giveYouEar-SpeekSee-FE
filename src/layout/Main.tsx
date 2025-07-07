@@ -19,6 +19,10 @@ const Main = () => {
     '/': {
       nav: 'home',
     },
+    '/study': {
+      nav: 'study',
+      pagename: "학습"
+    },
     '/script': {
       nav: 'home',
     },

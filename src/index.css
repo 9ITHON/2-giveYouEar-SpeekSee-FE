@@ -142,3 +142,11 @@ a:active {
   color: #fff;
   background-color: #f59000;
 }
+.recharts-wrapper,
+.recharts-wrapper svg {
+  overflow: visible !important;
+}
+
+.recharts-wrapper *:focus {
+  outline: none;
+}

@@ -6,10 +6,13 @@ import HomeIcon from '../../../assets/png/back-home.png';
 import NextIcon from '../../../assets/png/next.png';
 import RepeatIcon from '../../../assets/png/repeat.png';
 import RecordIcon from '../../../assets/png/record.png';
+import RecordingIcon from '../../../assets/png/recording.png';
 
 interface ActivityButtonsProps {
   status: number;
   setStatus: React.Dispatch<React.SetStateAction<number>>;
+  isTalking: boolean;
+  totalStep: number;
   handleRecordBtn: () => void;
   setProblemNo: React.Dispatch<React.SetStateAction<number>>;
 }
@@ -25,6 +28,8 @@ const ActivityButtonsStyle = styled.div`
 const ActivityButtons = ({
   status,
   setStatus,
+  isTalking,
+  totalStep,
   handleRecordBtn,
   setProblemNo,
 }: ActivityButtonsProps) => {
@@ -33,7 +38,8 @@ const ActivityButtons = ({
     <ActivityButtonsStyle>
       {status < 3 && (
         <ActivityButton
-          icon={RecordIcon}
+          icon={status === 1 && isTalking ? RecordingIcon : RecordIcon}
+          isTalking={status === 1 && isTalking}
           width={32}
           diffSize={8}
           onClick={() => {
@@ -51,7 +57,7 @@ const ActivityButtons = ({
           diffSize={16}
           onClick={() => {
             setProblemNo(prev => {
-              if (prev === 3) {
+              if (prev === totalStep) {
                 setStatus(5);
                 return prev;
               }
@@ -69,7 +75,7 @@ const ActivityButtons = ({
           width={40}
           diffSize={12}
           onClick={() => {
-            setStatus(0);
+            return;
           }}
         >
           다시 연습하기

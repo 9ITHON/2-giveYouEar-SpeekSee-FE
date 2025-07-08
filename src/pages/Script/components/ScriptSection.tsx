@@ -39,11 +39,13 @@ const ScriptContent = styled.div<ScriptContentProps>`
 
 const ScriptSection = ({
   status,
+  accuracy,
   problemNo,
   totalStep,
   script,
 }: {
   status: number;
+  accuracy: number;
   problemNo: number;
   totalStep: number;
   script: React.ReactNode;
@@ -61,7 +63,7 @@ const ScriptSection = ({
       {status !== 5 && (
         <ScriptContent $status={status}>{script ? script : '준비 중...'}</ScriptContent>
       )}
-      {status === 4 && <Result />}
+      {status === 4 && <Result accuracy={accuracy}/>}
     </ScriptSectionStyle>
   );
 };

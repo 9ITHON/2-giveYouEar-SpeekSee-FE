@@ -50,13 +50,12 @@ const CheerMessage = styled.span`
   line-height: 1.1em;
 `;
 
-const Result = () => {
-  const accuracyRate = 87;
+const Result = ({ accuracy }: { accuracy: number }) => {
   return (
     <ResultStyle>
-      <Accuracy accuracy={accuracyRate} />
+      <Accuracy accuracy={accuracy} />
       <CheerMessage>
-        {accuracyRate >= 80 ? '잘하고 있어요!\n지금처럼 열심히 해주세요!' : '화이팅'}
+        {accuracy >= 80 ? '잘하고 있어요!\n지금처럼 열심히 해주세요!' : '좀 더 잘할 수 있어요!'}
       </CheerMessage>
     </ResultStyle>
   );

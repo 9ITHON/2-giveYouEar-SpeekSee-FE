@@ -48,7 +48,9 @@ const Practice = () => {
     const getScript = async () => {
       try {
         const response = await getOneScript(scriptid);
-        return response?.data.data.content;
+        if (response.data.success) {
+          return response.data.data.content;
+        }
       } catch (error) {
         console.log(error);
       }
@@ -60,6 +62,7 @@ const Practice = () => {
     } else {
       curScripts.push(location.state.content);
     }
+    console.log(curScripts);
     setScripts(curScripts);
   }, []);
 
@@ -90,6 +93,7 @@ const Practice = () => {
       webSocket.current.close();
       webSocket.current = null;
     }
+    setStatus(0);
   }, []);
 
   const startRecognizingVoice = useCallback(() => {
@@ -142,7 +146,7 @@ const Practice = () => {
             const detectTalking = () => {
               analyser.getByteFrequencyData(dataArray);
               const avgVolume = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
-              if (avgVolume > 50) {
+              if (avgVolume >= 20) {
                 setIsTalking(true);
               } else {
                 setIsTalking(false);
@@ -176,9 +180,9 @@ const Practice = () => {
             console.log('🔐 인증 성공');
           } else if (data.type === 'ERROR') {
             console.error(`❌ 오류: ${data.message}`);
+            endRecognizingVoice();
           } else {
-            if (data.isFinal) {
-              console.log('하이');
+            if (data.final) {
               setStatus(2);
               setTimeout(() => {
                 setStatus(3);
@@ -193,20 +197,24 @@ const Practice = () => {
               }, 2000);
               endRecognizingVoice();
             } else {
+              console.log('전달받은 데이터 전체:', data);
               console.log('📩 인식 결과:', data.transcript);
             }
           }
         } catch (err) {
           console.warn('❌ 응답 처리 중 오류:', err);
+          endRecognizingVoice();
         }
       };
 
       webSocket.current.onerror = e => {
         console.error('🚨 WebSocket 에러:', e);
+        endRecognizingVoice();
       };
 
       webSocket.current.onclose = () => {
         console.log('🔌 WebSocket 연결 종료');
+        endRecognizingVoice();
       };
     };
     start();

@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 import List from '../../components/List';
+import { useEffect, useState } from 'react';
+import getUserPracticeScripts from '../../apis/getUserPracticeScripts';
 
 const ReviewStyle = styled.div`
   margin-top: 18px;
@@ -7,31 +9,30 @@ const ReviewStyle = styled.div`
 `;
 
 const Review = () => {
-  const reviews = [
-    {
-      title: '데일리 추천 대본',
-      description: '잰말놀이',
-      detail: '간장 공장 공장장은 강 공장장이고 된장 공장 공장장은 된 공장장이다.',
-    },
-    {
-      title: '데일리 추천 대본',
-      description: '자기소개',
-      detail: '안녕하십니까? 저는 산책하는 중입니다.',
-    },
-    {
-      title: '데일리 추천 대본',
-      description: '뉴스',
-      detail: '2024년 12월 말, 선행을 베푼 두 학생은',
-    },
-  ];
+  const [reviews, setReviews] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await getUserPracticeScripts();
+        // response.data의 구조에 따라 아래 코드 수정 필요
+        setReviews(response.data.data); // 예시: response.data가 배열일 경우
+      } catch (error) {
+        // 에러 처리
+        console.error(error);
+      }
+    };
+    fetchReviews();
+  }, []);
+  console.log(reviews);
   return (
     <ReviewStyle>
       {reviews.map((review, index) => (
         <List
           key={index}
-          title={review.title}
-          description={review.description}
-          detail={review.detail}
+          title={"데일리 추천 대본"}
+          description={review.title}
+          detail={review.content}
         />
       ))}
     </ReviewStyle>

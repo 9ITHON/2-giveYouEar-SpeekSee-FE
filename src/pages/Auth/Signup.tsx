@@ -1,5 +1,8 @@
-import React from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
+import mainApi from '../../apis/mainApi';
+
+
 
 const Container = styled.div`
   width: 400px;
@@ -58,36 +61,74 @@ const Button = styled.button`
   margin-top: 18px;
 `;
 
-const Signup: React.FC = () => (
-  <Container>
-    <Title>로고 & 어플명</Title>
-    <Label htmlFor="nickname">
-      닉네임<Required>*</Required>
-    </Label>
-    <Input id="nickname" placeholder="닉네임을 입력해주세요." />
 
-    <Label htmlFor="userid">
-      아이디<Required>*</Required>
-    </Label>
-    <Input id="userid" placeholder="아이디를 입력해주세요." />
 
-    <Label htmlFor="pw">
-      비밀번호<Required>*</Required>
-    </Label>
-    <Input id="pw" type="password" placeholder="비밀번호를 입력해주세요." />
 
-    <Label htmlFor="pwcheck">
-      비밀번호 확인<Required>*</Required>
-    </Label>
-    <Input id="pwcheck" type="password" placeholder="비밀번호를 입력해주세요." />
 
-    <Label htmlFor="birth">
-      생년월일
-    </Label>
-    <Input id="birth" placeholder="생년월일을 적어주세요. "/>
+const Signup: React.FC = () => {
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+    username: '',
+    passwordCheck: '',
+  });
 
-    <Button>회원가입</Button>
-  </Container>
-);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.id]: e.target.value });
+  };
+
+  // 회원가입 API 호출 함수
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (form.password !== form.passwordCheck) {
+      alert('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+    try {
+      const res = await mainApi.post('/api/auth/signup', {
+        email: form.email,
+        password: form.password,
+        username: form.username,
+      });
+      if (res.data.success) {
+        alert(res.data.message); // "회원가입이 완료되었습니다" 
+        window.location.href = '/login';
+      } else {
+        alert(res.data.error?.message || '회원가입 실패');
+      }
+    } catch (err: any) {
+      alert('네트워크 오류');
+    }
+  };
+
+  return (
+    <Container>
+      <Title>로고 & 어플명</Title>
+      <form onSubmit={handleSignup}>
+        <Label htmlFor="username">
+          이름<Required>*</Required>
+        </Label>
+        <Input id="username" value={form.username} onChange={handleChange} placeholder="이름을 입력해주세요." />
+
+        <Label htmlFor="email">
+          이메일<Required>*</Required>
+        </Label>
+        <Input id="email" value={form.email} onChange={handleChange} placeholder="이메일을 입력해주세요." />
+
+        <Label htmlFor="password">
+          비밀번호<Required>*</Required>
+        </Label>
+        <Input id="password" type="password" value={form.password} onChange={handleChange} placeholder="비밀번호를 입력해주세요." />
+
+        <Label htmlFor="passwordCheck">
+          비밀번호 확인<Required>*</Required>
+        </Label>
+        <Input id="passwordCheck" type="password" value={form.passwordCheck} onChange={handleChange} placeholder="비밀번호를 다시 입력해주세요." />
+
+        <Button type="submit">회원가입</Button>
+      </form>
+    </Container>
+  );
+};
 
 export default Signup;

@@ -86,7 +86,7 @@ const ActivityButtons = ({
           width={38}
           icon={HomeIcon}
           diffSize={14}
-          onClick={() => navigate('/script/select', { replace: true })}
+          onClick={() => navigate('/script', { replace: true })}
         >
           나가기
         </ActivityButton>

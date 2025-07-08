@@ -1,12 +1,8 @@
 import mainApi from './mainApi';
 
-const createDailyScript = (category: string, difficulty: string) => {
-  return mainApi.post(
-    '/api/scripts/daily',
-    {
-      category,
-      difficulty,
-    },
+const deleteDailyScript = (scriptid: number) => {
+  return mainApi.delete(
+    `/api/scripts/${scriptid}`,
     {
       headers: {
         Authorization:
@@ -17,4 +13,4 @@ const createDailyScript = (category: string, difficulty: string) => {
   );
 };
 
-export default createDailyScript;
+export default deleteDailyScript;

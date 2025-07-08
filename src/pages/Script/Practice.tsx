@@ -41,7 +41,7 @@ const Practice = () => {
       }
     };
     const curScripts = [...scripts];
-    if (location.state.content === '') {
+    if (location.state === null) {
       const newScript = getScript();
       curScripts.push(newScript);
     } else {

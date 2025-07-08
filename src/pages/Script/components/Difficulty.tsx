@@ -9,13 +9,13 @@ const DifficultyStyle = styled.div`
 
 const Difficulty = ({ category }: { category: string }) => {
   const navigate = useNavigate();
-  const goToThePractice = useCallback(async (difficulty: string, category: string) => {
+  const goToThePractice = useCallback(async (category: string, difficulty: string) => {
     try {
-      console.log(import.meta.env.VITE_ACCESS_TOKEN);
+      console.log(category, difficulty);
       const response = await createDailyScript(category, difficulty);
       if (response) {
-        console.log(response);
         const data = response.data.data;
+        console.log(data);
         navigate(`/script/${data.id}`, {
           state: {
             id: data.id,

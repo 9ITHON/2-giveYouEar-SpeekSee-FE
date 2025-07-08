@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { GoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
+import mainApi from '../../apis/mainApi';
 
 const Container = styled.div`
   width: 400px;
@@ -54,7 +53,6 @@ const Button = styled.button`
   margin-bottom: 12px;
 `;
 
-
 const Row = styled.div`
   display: flex;
   justify-content: space-between;
@@ -97,34 +95,57 @@ const OrText = styled.span`
 `;
 
 const JoinButton = styled(Button)`
-  background: #a5c8ff;
+  background:  #7daaff;
   color: #fff;
   margin-bottom: 0;
 `;
 
 const Login: React.FC = () => {
-  const handleGoogleLoginSuccess = async (credentialResponse: any) => {
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.id]: e.target.value });
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
     try {
-      await axios.post(
-        '/api/auth/login',
-        { credential: credentialResponse.credential },
-        { withCredentials: true }
-      );
-      alert('로그인 성공!');
-      window.location.href = '/dashboard';
-    } catch (error) {
-      alert('구글 로그인 실패');
+      const res = await mainApi.post('/api/auth/login', {
+        email: form.email,
+        password: form.password,
+      });
+      if (res.data.success && res.data.data) {
+        localStorage.setItem('accessToken', res.data.data.accessToken);
+        localStorage.setItem('refreshToken', res.data.data.refreshToken);
+        alert('로그인 성공!');
+        window.location.href = '/dashboard';
+      } else {
+        alert(res.data.message || '로그인 실패');
+      }
+    } catch (err) {
+      alert('네트워크 오류');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <Container>
       <Title>로고 & 어플명</Title>
-      <Label htmlFor="id">아이디</Label>
-      <Input id="id" placeholder="아이디를 입력해주세요." />
-      <Label htmlFor="pw">비밀번호</Label>
-      <Input id="pw" type="password" placeholder="비밀번호를 입력해주세요." />
-      <Button>로그인</Button>
+      <form onSubmit={handleLogin}>
+        <Label htmlFor="email">이메일</Label>
+        <Input id="email" value={form.email} onChange={handleChange} placeholder="이메일을 입력해주세요." />
+        <Label htmlFor="password">비밀번호</Label>
+        <Input id="password" type="password" value={form.password} onChange={handleChange} placeholder="비밀번호를 입력해주세요." />
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? '로그인 중...' : '로그인'}
+        </Button>
+      </form>
       <Row>
         <FindLink>아이디 찾기 / 비밀번호 찾기</FindLink>
         <CheckboxLabel>
@@ -137,11 +158,7 @@ const Login: React.FC = () => {
         <OrText>또는</OrText>
         <Line />
       </Divider>
-      <JoinButton>회원가입하기</JoinButton>
-      <GoogleLogin
-        onSuccess={handleGoogleLoginSuccess}
-        onError={() => alert('구글 로그인 실패')}
-      />
+      <JoinButton type="button" onClick={()=> window.location.href ='/signup'}>회원가입하기</JoinButton>
     </Container>
   );
 };

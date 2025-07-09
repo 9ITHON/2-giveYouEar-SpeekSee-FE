@@ -14,7 +14,7 @@ interface ActivityButtonsProps {
   isTalking: boolean;
   totalStep: number;
   handleRecordBtn: () => void;
-  setProblemNo: React.Dispatch<React.SetStateAction<number>>;
+  setStep: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const ActivityButtonsStyle = styled.div`
@@ -31,7 +31,7 @@ const ActivityButtons = ({
   isTalking,
   totalStep,
   handleRecordBtn,
-  setProblemNo,
+  setStep,
 }: ActivityButtonsProps) => {
   const navigate = useNavigate();
   return (
@@ -56,7 +56,7 @@ const ActivityButtons = ({
           width={42.5}
           diffSize={16}
           onClick={() => {
-            setProblemNo(prev => {
+            setStep(prev => {
               if (prev === totalStep) {
                 setStatus(5);
                 return prev;

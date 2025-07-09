@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import ProgressBar from './ProgressBar';
 import Result from './Result';
-import React, { useCallback } from 'react';
+import React from 'react';
 import RedText from './RedText';
 import BlueText from './BlueText';
 import SkyblueText from './SkyblueText';
@@ -73,7 +73,7 @@ const ScriptSection = ({
   accuracy,
   correctCount,
   totalCount,
-  problemNo,
+  step,
   totalStep,
   script,
   path,
@@ -82,15 +82,14 @@ const ScriptSection = ({
   accuracy: number;
   correctCount: number;
   totalCount: number;
-  problemNo: number;
+  step: number;
   totalStep: number;
   script: React.ReactNode;
   path: string;
 }) => {
-  console.log(problemNo, totalStep);
   return (
     <ScriptSectionStyle>
-      <ProgressBar step={problemNo} totalStep={totalStep} />
+      <ProgressBar step={step} totalStep={totalStep} />
       <PracticeDescription>
         {status === 4
           ? '이번 문제의 결과를 확인하세요!'

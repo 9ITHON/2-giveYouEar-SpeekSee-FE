@@ -28,14 +28,14 @@ const Practice = () => {
    * 4: 다음 문제/다시 연습
    * 5: 모든 문제 해결
    */
-  const [status, setStatus] = useState<number>(0);
-  const [isClosed, setIsClosed] = useState<boolean>(false);
-  const [problemNo, setProblemNo] = useState<number>(1);
-  const [scripts, setScripts] = useState<string[]>([]);
-  const [accuracy, setAccuracy] = useState<number>(0);
-  const [totalCount, setTotalCount] = useState<number>(0);
-  const [correctCount, setCorrectCount] = useState<number>(0);
-  const [curScript, setCurScript] = useState<React.ReactNode>();
+  const [status, setStatus] = useState<number>(0);                 // 학습 진행 상태
+  const [isClosed, setIsClosed] = useState<boolean>(false);        // 대본 연습 창 닫기 버튼 클릭 확인
+  const [step, setStep] = useState<number>(1);                     // 학습 대본 단계
+  const [scripts, setScripts] = useState<string[]>([]);            // 학습 진행 대본 목록(초기 진단 테스트: 5개, 데일리 대본 연습: 1개)
+  const [curScript, setCurScript] = useState<React.ReactNode>();   // 학습 진행 대본
+  const [accuracy, setAccuracy] = useState<number>(0);             // 학습 결과 - 정확도
+  const [totalCount, setTotalCount] = useState<number>(0);         // 학습 진행 - 총 단어 개수
+  const [correctCount, setCorrectCount] = useState<number>(0);     // 학습 진행 - 맞은 단어 개수
   const location = useLocation();
   const paths = location.pathname.split('/');
   const scriptid = Number(paths[paths.length - 1]);
@@ -71,7 +71,7 @@ const Practice = () => {
         curScripts.push(location.state.content);
       }
       setScripts(curScripts);
-      setCurScript(curScripts[problemNo - 1]);
+      setCurScript(curScripts[step - 1]);
     };
 
     fetchAndSetScripts();
@@ -266,7 +266,7 @@ const Practice = () => {
         accuracy={accuracy}
         correctCount={correctCount}
         totalCount={totalCount}
-        problemNo={problemNo}
+        step={step}
         totalStep={scripts.length}
         script={curScript}
         path={paths[1]}
@@ -278,7 +278,7 @@ const Practice = () => {
         isTalking={isTalking}
         totalStep={scripts.length}
         handleRecordBtn={handleRecordBtn}
-        setProblemNo={setProblemNo}
+        setStep={setStep}
       />
     </PracticeStyle>
   );

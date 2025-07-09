@@ -46,7 +46,7 @@ const ActivityButtons = ({
             handleRecordBtn();
           }}
         >
-          {status === 0 ? '녹음하기' : status === 1 ? '녹음 중...' : '녹음 완료'}
+          {status === 0 ? '녹음하기' : status === 1 ? '녹음 중...' : '완료'}
         </ActivityButton>
       )}
       {status === 3 && <AnalysingText>분석중 ...</AnalysingText>}

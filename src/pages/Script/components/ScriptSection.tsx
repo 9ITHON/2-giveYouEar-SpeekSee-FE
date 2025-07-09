@@ -20,6 +20,8 @@ const ScriptSectionStyle = styled.div`
   height: 60em;
 `;
 
+const ScriptSectionWrapper = styled.div``;
+
 const PracticeDescription = styled.div`
   margin-top: 3rem;
   color: #6dabfd;
@@ -39,7 +41,7 @@ const ScriptContent = styled.div<ScriptContentProps>`
   font-size: 16px;
   white-space: normal; /* 연속된 공백은 무시하고, 일반적인 단어 단위 래핑 */
   overflow-wrap: break-word; /* 단어 중간이라도 줄 바꿈 허용 */
-  word-break: ${props => (props.$hasSpan ? 'keep-all' : 'break-word')};
+  word-break: 'keep-all';
   line-height: 1.1em;
   overflow-y: auto;
   /* span 사이 spacing */
@@ -97,14 +99,16 @@ const ScriptSection = ({
           ? '문제를 다 풀었어요! 결과를 확인해 보세요!'
           : '버튼을 누른 뒤 아래 문장을 읽어주세요.'}
       </PracticeDescription>
-      {(status !== 5 || (status === 5 && path === 'script')) && (
-        <ScriptContent $status={status} $hasSpan={hasSpanElement(script)}>
-          {script ? script : '준비 중...'}
-        </ScriptContent>
-      )}
-      {status >= 4 && (
-        <Result accuracy={accuracy} correctCount={correctCount} totalCount={totalCount} />
-      )}
+      <ScriptSectionWrapper>
+        {(status !== 5 || (status === 5 && path === 'script')) && (
+          <ScriptContent $status={status} $hasSpan={hasSpanElement(script)}>
+            {script ? script : '준비 중...'}
+          </ScriptContent>
+        )}
+        {status >= 4 && (
+          <Result accuracy={accuracy} correctCount={correctCount} totalCount={totalCount} />
+        )}
+      </ScriptSectionWrapper>
     </ScriptSectionStyle>
   );
 };

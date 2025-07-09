@@ -10,6 +10,7 @@ import { useLocation } from 'react-router-dom';
 import getOneScript from '../../apis/getOneScript';
 import RedText from './components/RedText';
 import BlueText from './components/BlueText';
+import SkyblueText from './components/SkyblueText';
 
 const PracticeStyle = styled.div`
   height: 100%;
@@ -28,14 +29,17 @@ const Practice = () => {
    * 4: 다음 문제/다시 연습
    * 5: 모든 문제 해결
    */
-  const [status, setStatus] = useState<number>(0);                 // 학습 진행 상태
-  const [isClosed, setIsClosed] = useState<boolean>(false);        // 대본 연습 창 닫기 버튼 클릭 확인
-  const [step, setStep] = useState<number>(1);                     // 학습 대본 단계
-  const [scripts, setScripts] = useState<string[]>([]);            // 학습 진행 대본 목록(초기 진단 테스트: 5개, 데일리 대본 연습: 1개)
-  const [curScript, setCurScript] = useState<React.ReactNode>();   // 학습 진행 대본
-  const [accuracy, setAccuracy] = useState<number>(0);             // 학습 결과 - 정확도
-  const [totalCount, setTotalCount] = useState<number>(0);         // 학습 진행 - 총 단어 개수
-  const [correctCount, setCorrectCount] = useState<number>(0);     // 학습 진행 - 맞은 단어 개수
+  const [status, setStatus] = useState<number>(0); // 학습 진행 상태
+  const [isClosed, setIsClosed] = useState<boolean>(false); // 대본 연습 창 닫기 버튼 클릭 확인
+  const [step, setStep] = useState<number>(1); // 학습 대본 단계
+  const [scripts, setScripts] = useState<string[]>([]); // 학습 진행 대본 목록(초기 진단 테스트: 5개, 데일리 대본 연습: 1개)
+  const [curScript, setCurScript] = useState<React.ReactElement[]>([]);
+  const curScriptRef = useRef<React.ReactElement[]>([]);
+  const expectedWordsRef = useRef<React.ReactNode[]>([]); // 예상되는 단어들을 <SkyblueText> 컴포넌트로 감싸서 관리
+  const wordsLengthRef = useRef<number>(0);
+  const [accuracy, setAccuracy] = useState<number>(0); // 학습 결과 - 정확도
+  const [totalCount, setTotalCount] = useState<number>(0); // 학습 진행 - 총 단어 개수
+  const [correctCount, setCorrectCount] = useState<number>(0); // 학습 진행 - 맞은 단어 개수
   const location = useLocation();
   const paths = location.pathname.split('/');
   const scriptid = Number(paths[paths.length - 1]);
@@ -71,11 +75,19 @@ const Practice = () => {
         curScripts.push(location.state.content);
       }
       setScripts(curScripts);
-      setCurScript(curScripts[step - 1]);
+      expectedWordsRef.current = curScripts[step - 1].split(' ');
+      const expectedWords = curScripts[step - 1].split(' ').map((value: string, index: number) => {
+        return <SkyblueText key={index}>{value}</SkyblueText>;
+      });
+      setCurScript(expectedWords);
     };
 
     fetchAndSetScripts();
   }, []);
+
+  useEffect(() => {
+    curScriptRef.current = curScript;
+  }, [curScript]);
 
   const handleRecordBtn = useCallback(() => {
     if (status === 0) {
@@ -188,7 +200,6 @@ const Practice = () => {
       webSocket.current.onmessage = e => {
         try {
           const data = JSON.parse(e.data);
-          console.log(data);
           if (data.type === 'AUTH_OK') {
             console.log('🔐 인증 성공');
           } else if (data.type === 'ERROR') {
@@ -221,8 +232,17 @@ const Practice = () => {
               endRecognizingVoice();
               console.log('206번째 줄에서 close가 발생했습니다!');
             } else {
-              console.log('전달받은 데이터 전체:', data);
               console.log('📩 인식 결과:', data.transcript);
+              const curWords = [...curScriptRef.current];
+              const subwords = data.transcript.split(' ');
+              if (subwords.length > wordsLengthRef.current) {
+                for (let i = wordsLengthRef.current; i < subwords.length; i++) {
+                  curWords[i] = <BlueText>{expectedWordsRef.current[i]}</BlueText>;
+                }
+                curScriptRef.current = curWords;
+                setCurScript(curScriptRef.current);
+                wordsLengthRef.current = subwords.length;
+              }
             }
           }
         } catch (err) {

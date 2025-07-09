@@ -45,6 +45,7 @@ function App() {
           <Route path="signup" element={<Signup />} />
           <Route path="test" element={<Test />} />
           <Route path="script/:script_id" element={<Practice />} />
+          <Route path="script/review/:script_id" element={<Practice />} />
         </Routes>
       </Common>
     </AppStyle>

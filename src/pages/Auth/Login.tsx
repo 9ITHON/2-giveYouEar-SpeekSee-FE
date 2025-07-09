@@ -2,6 +2,13 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import mainApi from '../../apis/mainApi';
 
+const KAKAO_CLIENT_ID = "카카오_자바스크립트_키_입력";
+const KAKAO_REDIRECT_URI = "http://localhost:5173/auth/callback/kakao";
+const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
+
+
+
+
 const Container = styled.div`
   width: 400px;
   margin: 40px auto;
@@ -100,6 +107,10 @@ const JoinButton = styled(Button)`
   margin-bottom: 0;
 `;
 
+const handleKakaoLogin = () => {
+  window.location.href = kakaoAuthUrl;
+};
+
 const Login: React.FC = () => {
   const [form, setForm] = useState({
     email: '',
@@ -159,6 +170,13 @@ const Login: React.FC = () => {
         <Line />
       </Divider>
       <JoinButton type="button" onClick={()=> window.location.href ='/signup'}>회원가입하기</JoinButton>
+      <Button
+      type="button"
+      onClick={handleKakaoLogin}
+      style={{ background: "#FEE500", color: "#000", marginTop: "12px"}}
+      >
+        카카오로 로그인
+      </Button>
     </Container>
   );
 };

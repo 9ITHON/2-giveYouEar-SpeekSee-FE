@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import Title from './Title';
 
 const ListStyle = styled.div`
   margin-bottom: 12px;
@@ -8,13 +9,6 @@ const ListStyle = styled.div`
   color: #6dabfd;
 `;
 
-const ListTitle = styled.h1`
-  color: #6dabfd;
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 12px;
-`;
-
 const ListDescription = styled.span`
   display: block;
   font-size: 10px;
@@ -22,7 +16,7 @@ const ListDescription = styled.span`
   margin-bottom: 12px;
 `;
 
-const ListDetail = styled.span`
+const ListDetailOne = styled.span`
   display: block;
   font-size: 12px;
   font-weight: 400;
@@ -32,20 +26,33 @@ const ListDetail = styled.span`
   width: 16rem;
 `;
 
+const ListDetailTwo = styled.div``;
+
+const ListDetail = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const List = ({
   title,
   description,
-  detail,
+  detailOne,
+  detailTwo,
 }: {
   title: string;
   description: string;
-  detail: React.ReactNode;
+  detailOne: React.ReactNode;
+  detailTwo?: React.ReactNode;
 }) => {
   return (
     <ListStyle>
-      <ListTitle>{title}</ListTitle>
+      <Title>{title}</Title>
       <ListDescription>{description}</ListDescription>
-      <ListDetail>{detail}</ListDetail>
+      <ListDetail>
+        <ListDetailOne>{detailOne}</ListDetailOne>
+        <ListDetailTwo>{detailTwo}</ListDetailTwo>
+      </ListDetail>
     </ListStyle>
   );
 };

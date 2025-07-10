@@ -6,11 +6,12 @@ import Divider from './components/Divider';
 import ActivityButtons from './components/ActivityButtons';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Modal from './components/Modal';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import ProgressBar from './components/ProgressBar';
 import PracticeDescription from './components/PracticeDescription';
 import Result from './components/Result';
 import type { TestContext } from './types/TestContext';
+import getLevelTestScripts from '../../apis/getLevelTestScripts';
 
 const TestStyle = styled.div`
   height: 100%;
@@ -46,7 +47,8 @@ const Test = () => {
   const location = useLocation();
   const paths = location.pathname.split('/');
   const scriptid = Number(paths[paths.length - 1]);
-  const memberid = 2;
+  const memberid = 1;
+  const navigate = useNavigate();
 
   // 오디오 및 웹소켓 관련
   const [isTalking, setIsTalking] = useState(false);
@@ -58,7 +60,22 @@ const Test = () => {
 
   useEffect(() => {
     const curScripts = [...scripts];
-    setScripts(curScripts);
+    const getScripts = async () => {
+      try {
+        const response = await getLevelTestScripts();
+        const data = response.data.data;
+        console.log(data);
+        // data.map((value: Record<string, string | number>) => {
+        //   curScripts.push(value.content);
+        // })
+        curScripts.push(data.content);
+        console.log(curScripts);
+        setScripts(curScripts);
+      } catch (error) {
+        console.log(curScripts);
+      }
+    };
+    getScripts();
   }, []);
 
   const handleRecordBtn = useCallback(() => {
@@ -69,6 +86,18 @@ const Test = () => {
     if (status === 0) {
       startRecognizingVoice();
     } else if (status === 1) {
+      setStatus(2);
+      setTimeout(() => {
+        setProblemNo(prev => {
+          if (prev === 2) {
+            return 1;
+          } else {
+            setStatus(0);
+            navigate(`/test/${prev + 1}`);
+            return prev + 1;
+          }
+        });
+      }, 2000);
     }
   }, [status]);
 
@@ -226,7 +255,7 @@ const Test = () => {
     introStatus,
     setIntroStatus,
     script: scripts[problemNo - 1],
-    problemNo
+    problemNo,
   };
   return (
     <TestStyle>

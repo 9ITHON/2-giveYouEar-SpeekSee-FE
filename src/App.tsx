@@ -13,6 +13,8 @@ import Main from './layout/Main';
 import Attendance from './pages/Attendance/Attendance';
 import Study from './pages/Study/Study';
 import Ranking from './pages/Ranking/Ranking';
+import Intro from './pages/Test/components/Intro';
+import Script from './pages/Test/components/Script';
 
 const AppStyle = styled.div`
   display: flex;
@@ -43,7 +45,10 @@ function App() {
           </Route>
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
-          <Route path="test" element={<Test />} />
+          <Route path="test" element={<Test />}>
+            <Route index element={<Intro />} />
+            <Route path=":id" element={<Script />} />
+          </Route>
           <Route path="script/:script_id" element={<Practice />} />
           <Route path="script/review/:script_id" element={<Practice />} />
         </Routes>

@@ -21,7 +21,7 @@ const Review = () => {
   return (
     <div>
       {reviews.map(review => (
-        <List title={review.title} description={review.description} detail={review.detail} />
+        <List title={review.title} description={review.description} detailOne={review.detail} />
       ))}
     </div>
   );

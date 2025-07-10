@@ -1,23 +1,32 @@
+import { useMemo } from 'react';
 import { XAxis, Bar, ResponsiveContainer, BarChart, Cell } from 'recharts';
 
 const data = [
-  { name: '월', points: 30, color: '#C9E0FF' },
-  { name: '화', points: 40, color: '#B7D6FF' },
-  { name: '수', points: 50, color: '#A2CAFF' },
-  { name: '목', points: 60, color: '#93C1FF' },
-  { name: '금', points: 70, color: '#81B7FF' },
-  { name: '토', points: 80, color: '#6DABFD' },
-  { name: '일', points: 100, color: '#539DFF' },
+  { name: '월', points: 0, color: '#C9E0FF' },
+  { name: '화', points: 0, color: '#B7D6FF' },
+  { name: '수', points: 0, color: '#A2CAFF' },
+  { name: '목', points: 0, color: '#93C1FF' },
+  { name: '금', points: 0, color: '#81B7FF' },
+  { name: '토', points: 0, color: '#6DABFD' },
+  { name: '일', points: 0, color: '#539DFF' },
 ];
 
-const MyChart = () => {
+const MyChart = ({ thisWeekPoints }: { thisWeekPoints: number[] }) => {
+  const chartData = useMemo(
+    () =>
+      data.map((item, idx) => ({
+        ...item,
+        points: thisWeekPoints[idx] ?? 0,
+      })),
+    [thisWeekPoints],
+  );
   return (
     <div
       style={{
         position: 'relative',
         width: 300,
         height: 270,
-		marginTop: "15px"
+        marginTop: '15px',
       }}
     >
       <ResponsiveContainer width="100%" height="100%">
@@ -26,7 +35,7 @@ const MyChart = () => {
             dataKey="name"
             axisLine={false}
             tickLine={false}
-			tickMargin={6}
+            tickMargin={6}
             tick={{ fill: '#81B7FF', fontSize: '12', fontWeight: '500' }}
           />
           <Bar
@@ -40,8 +49,8 @@ const MyChart = () => {
             }}
             radius={2}
           >
-            {data.map((_, idx) => (
-              <Cell key={idx} fill={data[idx % data.length]['color']} />
+            {chartData.map((entry, idx) => (
+              <Cell key={idx} fill={entry.color} />
             ))}
           </Bar>
         </BarChart>

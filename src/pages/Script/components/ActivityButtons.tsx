@@ -14,7 +14,7 @@ interface ActivityButtonsProps {
   isTalking: boolean;
   totalStep: number;
   handleRecordBtn: () => void;
-  setProblemNo: React.Dispatch<React.SetStateAction<number>>;
+  setStep: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const ActivityButtonsStyle = styled.div`
@@ -31,7 +31,7 @@ const ActivityButtons = ({
   isTalking,
   totalStep,
   handleRecordBtn,
-  setProblemNo,
+  setStep,
 }: ActivityButtonsProps) => {
   const navigate = useNavigate();
   return (
@@ -46,7 +46,7 @@ const ActivityButtons = ({
             handleRecordBtn();
           }}
         >
-          {status === 0 ? '녹음하기' : status === 1 ? '녹음 중...' : '녹음 완료'}
+          {status === 0 ? '녹음하기' : status === 1 ? '녹음 중...' : '완료'}
         </ActivityButton>
       )}
       {status === 3 && <AnalysingText>분석중 ...</AnalysingText>}
@@ -56,7 +56,7 @@ const ActivityButtons = ({
           width={42.5}
           diffSize={16}
           onClick={() => {
-            setProblemNo(prev => {
+            setStep(prev => {
               if (prev === totalStep) {
                 setStatus(5);
                 return prev;
@@ -86,7 +86,7 @@ const ActivityButtons = ({
           width={38}
           icon={HomeIcon}
           diffSize={14}
-          onClick={() => navigate('/script/select', { replace: true })}
+          onClick={() => navigate('/script', { replace: true })}
         >
           나가기
         </ActivityButton>

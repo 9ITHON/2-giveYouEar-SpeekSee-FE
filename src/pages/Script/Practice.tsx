@@ -4,10 +4,13 @@ import CloseButtonImg from '../../assets/png/daily-script-button.png';
 import CloseButton from './components/CloseButton';
 import Divider from './components/Divider';
 import ActivityButtons from './components/ActivityButtons';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Modal from './components/Modal';
 import { useLocation } from 'react-router-dom';
 import getOneScript from '../../apis/getOneScript';
+import RedText from './components/RedText';
+import BlueText from './components/BlueText';
+import SkyblueText from './components/SkyblueText';
 
 const PracticeStyle = styled.div`
   height: 100%;
@@ -26,11 +29,17 @@ const Practice = () => {
    * 4: 다음 문제/다시 연습
    * 5: 모든 문제 해결
    */
-  const [status, setStatus] = useState<number>(0);
-  const [isClosed, setIsClosed] = useState<boolean>(false);
-  const [problemNo, setProblemNo] = useState<number>(1);
-  const [scripts, setScripts] = useState<React.ReactNode[]>([]);
-  const [accuracy, setAccuracy] = useState<number>(0);
+  const [status, setStatus] = useState<number>(0); // 학습 진행 상태
+  const [isClosed, setIsClosed] = useState<boolean>(false); // 대본 연습 창 닫기 버튼 클릭 확인
+  const [step, setStep] = useState<number>(1); // 학습 대본 단계
+  const [scripts, setScripts] = useState<string[]>([]); // 학습 진행 대본 목록(초기 진단 테스트: 5개, 데일리 대본 연습: 1개)
+  const [curScript, setCurScript] = useState<React.ReactElement[]>([]);
+  const curScriptRef = useRef<React.ReactElement[]>([]);
+  const expectedWordsRef = useRef<React.ReactNode[]>([]); // 예상되는 단어들을 <SkyblueText> 컴포넌트로 감싸서 관리
+  const wordsLengthRef = useRef<number>(0);
+  const [accuracy, setAccuracy] = useState<number>(0); // 학습 결과 - 정확도
+  const [totalCount, setTotalCount] = useState<number>(0); // 학습 진행 - 총 단어 개수
+  const [correctCount, setCorrectCount] = useState<number>(0); // 학습 진행 - 맞은 단어 개수
   const location = useLocation();
   const paths = location.pathname.split('/');
   const scriptid = Number(paths[paths.length - 1]);
@@ -54,17 +63,31 @@ const Practice = () => {
       } catch (error) {
         console.log(error);
       }
+      return null;
     };
-    const curScripts = [...scripts];
-    if (location.state === null) {
-      const newScript = getScript();
-      curScripts.push(newScript);
-    } else {
-      curScripts.push(location.state.content);
-    }
-    console.log(curScripts);
-    setScripts(curScripts);
+
+    const fetchAndSetScripts = async () => {
+      const curScripts = [...scripts];
+      if (location.state === null) {
+        const newScript = await getScript();
+        if (newScript) curScripts.push(newScript);
+      } else {
+        curScripts.push(location.state.content);
+      }
+      setScripts(curScripts);
+      expectedWordsRef.current = curScripts[step - 1].split(' ');
+      const expectedWords = curScripts[step - 1].split(' ').map((value: string, index: number) => {
+        return <SkyblueText key={index}>{value}</SkyblueText>;
+      });
+      setCurScript(expectedWords);
+    };
+
+    fetchAndSetScripts();
   }, []);
+
+  useEffect(() => {
+    curScriptRef.current = curScript;
+  }, [curScript]);
 
   const handleRecordBtn = useCallback(() => {
     if (status === 0) {
@@ -99,10 +122,10 @@ const Practice = () => {
   const startRecognizingVoice = useCallback(() => {
     const start = async () => {
       endRecognizingVoice();
+      console.log('107번째 줄에서 close가 발생했습니다!');
       webSocket.current = new WebSocket('ws://54.180.116.11:8080/ws/stt');
 
       webSocket.current.onopen = () => {
-        console.log(webSocket.current);
         webSocket.current?.send(
           JSON.stringify({
             type: 'AUTH',
@@ -168,9 +191,10 @@ const Practice = () => {
           } catch (error) {
             console.error(error);
             endRecognizingVoice();
+            console.log('175번째 줄에서 close가 발생했습니다!');
             setStatus(0);
           }
-        }, 1000);
+        }, 300);
       };
 
       webSocket.current.onmessage = e => {
@@ -181,40 +205,67 @@ const Practice = () => {
           } else if (data.type === 'ERROR') {
             console.error(`❌ 오류: ${data.message}`);
             endRecognizingVoice();
+            console.log('190번째 줄에서 close가 발생했습니다!');
           } else {
             if (data.final) {
               setStatus(2);
               setTimeout(() => {
                 setStatus(3);
+                setCurScript(
+                  data.words.map((info: Record<string, string>, index: number) => {
+                    let el = null;
+                    if (info.word === '' && info.expected !== '') {
+                      el = <RedText key={index}>{info.expected}</RedText>;
+                    } else if (info.word === info.expected) {
+                      el = <BlueText key={index}>{info.word}</BlueText>;
+                    }
+                    return el ? [el, ' '] : []; // 스팬 뒤에 공백 노드 하나
+                  }),
+                );
                 setTimeout(() => {
-                  setStatus(4);
-                  let sum = 0;
-                  data.words.forEach((value: Record<string, string | number | boolean>) => {
-                    sum += Number(value.isCorrect);
-                  });
-                  setAccuracy(sum / data.words.length);
-                });
-              }, 2000);
+                  setStatus(5);
+                  setAccuracy(Math.floor(data.accuracy * 1000) / 10);
+                  setCorrectCount(data.correctCount);
+                  setTotalCount(data.totalCount);
+                }, 5000);
+              }, 3000);
               endRecognizingVoice();
+              console.log('206번째 줄에서 close가 발생했습니다!');
             } else {
-              console.log('전달받은 데이터 전체:', data);
               console.log('📩 인식 결과:', data.transcript);
+              const curWords = [...curScriptRef.current];
+              const subwords = data.transcript.split(' ');
+              if (subwords.length > wordsLengthRef.current) {
+                for (let i = wordsLengthRef.current; i < subwords.length; i++) {
+                  curWords[i] = <BlueText>{expectedWordsRef.current[i]}</BlueText>;
+                }
+                curScriptRef.current = curWords;
+                setCurScript(curScriptRef.current);
+                wordsLengthRef.current = subwords.length;
+              }
             }
           }
         } catch (err) {
           console.warn('❌ 응답 처리 중 오류:', err);
           endRecognizingVoice();
+          console.log('215번째 줄에서 close가 발생했습니다!');
         }
       };
 
       webSocket.current.onerror = e => {
         console.error('🚨 WebSocket 에러:', e);
         endRecognizingVoice();
+        console.log('222번째 줄에서 close가 발생했습니다!');
       };
 
-      webSocket.current.onclose = () => {
+      webSocket.current.onclose = e => {
+        console.log('websocket code:', e.code, ', wasClean:', e.wasClean);
+        if (e.code !== 1000) {
+          console.log('비정상적인 종료:', e.code);
+        }
         console.log('🔌 WebSocket 연결 종료');
         endRecognizingVoice();
+        console.log('232번째 줄에서 close가 발생했습니다!');
       };
     };
     start();
@@ -233,9 +284,12 @@ const Practice = () => {
       <ScriptSection
         status={status}
         accuracy={accuracy}
-        problemNo={problemNo}
+        correctCount={correctCount}
+        totalCount={totalCount}
+        step={step}
         totalStep={scripts.length}
-        script={scripts[problemNo - 1]}
+        script={curScript}
+        path={paths[1]}
       />
       <Divider />
       <ActivityButtons
@@ -244,7 +298,7 @@ const Practice = () => {
         isTalking={isTalking}
         totalStep={scripts.length}
         handleRecordBtn={handleRecordBtn}
-        setProblemNo={setProblemNo}
+        setStep={setStep}
       />
     </PracticeStyle>
   );

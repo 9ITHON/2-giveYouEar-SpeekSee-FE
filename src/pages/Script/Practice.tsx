@@ -43,7 +43,7 @@ const Practice = () => {
   const location = useLocation();
   const paths = location.pathname.split('/');
   const scriptid = Number(paths[paths.length - 1]);
-  const memberid = 2;
+  const memberid = 1;
 
   // 오디오 및 웹소켓 관련
   const [isTalking, setIsTalking] = useState(false);
@@ -92,8 +92,20 @@ const Practice = () => {
   const handleRecordBtn = useCallback(() => {
     if (status === 0) {
       startRecognizingVoice();
+    } else if (status === 1) {
+      console.log('녹음 종료 시도!');
+      endRecognizingVoice();
+      webSocket.current?.send(JSON.stringify({ type: 'END_SENTENCE' }));
+      setStatus(2);
     }
   }, [status]);
+
+  const endWebSocket = useCallback(() => {
+    if (webSocket.current) {
+      webSocket.current.close();
+      webSocket.current = null;
+    }
+  }, []);
 
   const endRecognizingVoice = useCallback(() => {
     if (stream.current) {
@@ -112,16 +124,13 @@ const Practice = () => {
       mediaRecorder.current.stop();
       mediaRecorder.current = null;
     }
-    if (webSocket.current) {
-      webSocket.current.close();
-      webSocket.current = null;
-    }
     setStatus(0);
   }, []);
 
   const startRecognizingVoice = useCallback(() => {
     const start = async () => {
       endRecognizingVoice();
+      endWebSocket();
       console.log('107번째 줄에서 close가 발생했습니다!');
       webSocket.current = new WebSocket('ws://54.180.116.11:8080/ws/stt');
 
@@ -132,6 +141,7 @@ const Practice = () => {
             token: `Bearer ${import.meta.env.VITE_ACCESS_TOKEN}`,
             memberId: memberid,
             scriptId: scriptid,
+            mode: 'NORMAL',
           }),
         );
         setTimeout(async () => {
@@ -191,6 +201,7 @@ const Practice = () => {
           } catch (error) {
             console.error(error);
             endRecognizingVoice();
+            endWebSocket();
             console.log('175번째 줄에서 close가 발생했습니다!');
             setStatus(0);
           }
@@ -200,54 +211,68 @@ const Practice = () => {
       webSocket.current.onmessage = e => {
         try {
           const data = JSON.parse(e.data);
+          console.log(data);
           if (data.type === 'AUTH_OK') {
             console.log('🔐 인증 성공');
           } else if (data.type === 'ERROR') {
             console.error(`❌ 오류: ${data.message}`);
             endRecognizingVoice();
+            endWebSocket();
             console.log('190번째 줄에서 close가 발생했습니다!');
-          } else {
-            if (data.final) {
-              setStatus(2);
-              setTimeout(() => {
-                setStatus(3);
-                setCurScript(
-                  data.words.map((info: Record<string, string>, index: number) => {
-                    let el = null;
-                    if (info.word === '' && info.expected !== '') {
-                      el = <RedText key={index}>{info.expected}</RedText>;
-                    } else if (info.word === info.expected) {
-                      el = <BlueText key={index}>{info.word}</BlueText>;
-                    }
-                    return el ? [el, ' '] : []; // 스팬 뒤에 공백 노드 하나
-                  }),
-                );
-                setTimeout(() => {
-                  setStatus(5);
-                  setAccuracy(Math.floor(data.accuracy * 1000) / 10);
-                  setCorrectCount(data.correctCount);
-                  setTotalCount(data.totalCount);
-                }, 5000);
-              }, 3000);
-              endRecognizingVoice();
-              console.log('206번째 줄에서 close가 발생했습니다!');
-            } else {
-              console.log('📩 인식 결과:', data.transcript);
-              const curWords = [...curScriptRef.current];
-              const subwords = data.transcript.split(' ');
-              if (subwords.length > wordsLengthRef.current) {
-                for (let i = wordsLengthRef.current; i < subwords.length; i++) {
-                  curWords[i] = <BlueText>{expectedWordsRef.current[i]}</BlueText>;
-                }
-                curScriptRef.current = curWords;
-                setCurScript(curScriptRef.current);
-                wordsLengthRef.current = subwords.length;
+          } else if (data.type === 'INTERIM_FINAL') {
+            console.log('💡 최종 인식 결과:', data.transcript)
+          } else if (data.type === 'INTERIM') {
+            console.log('📩 인식 결과:', data.transcript);
+            const curWords = [...curScriptRef.current];
+            const subwords = data.transcript.split(' ');
+            if (subwords.length > wordsLengthRef.current) {
+              for (let i = wordsLengthRef.current; i < subwords.length; i++) {
+                curWords[i] = <BlueText key={i}>{expectedWordsRef.current[i]}</BlueText>;
               }
+              curScriptRef.current = curWords;
+              setCurScript(curScriptRef.current);
+              wordsLengthRef.current = subwords.length;
             }
+          } else if (data.type === 'FINAL_FLUSH') {
+            console.log('good!');
+            if (webSocket.current && webSocket.current.readyState === webSocket.current.OPEN) {
+              console.log('녹음 종료! 결과 전송 중...');
+              setTimeout(() => {
+                webSocket.current?.close();
+                webSocket.current = null;
+                endWebSocket();
+              }, 1000);
+            }
+            setTimeout(() => {
+              setStatus(3);
+              setCurScript(
+                data.words.map((info: Record<string, string>, index: number) => {
+                  let el = null;
+                  if (info.word === '' && info.expected !== '') {
+                    el = <RedText key={index}>{info.expected}</RedText>;
+                  } else if (info.word === info.expected) {
+                    el = <BlueText key={index}>{info.word}</BlueText>;
+                  }
+                  return el ? [el, ' '] : []; // 스팬 뒤에 공백 노드 하나
+                }),
+              );
+              setTimeout(() => {
+                setStatus(5);
+                setAccuracy(Math.floor(data.accuracy * 1000) / 10);
+                setCorrectCount(data.correctCount);
+                setTotalCount(data.totalCount);
+              }, 4000);
+            }, 3000);
+            endRecognizingVoice();
+            endWebSocket();
+            console.log('206번째 줄에서 close가 발생했습니다!');
+          } else {
+            console.log("sibal");
           }
         } catch (err) {
           console.warn('❌ 응답 처리 중 오류:', err);
           endRecognizingVoice();
+          endWebSocket();
           console.log('215번째 줄에서 close가 발생했습니다!');
         }
       };
@@ -255,6 +280,7 @@ const Practice = () => {
       webSocket.current.onerror = e => {
         console.error('🚨 WebSocket 에러:', e);
         endRecognizingVoice();
+        endWebSocket();
         console.log('222번째 줄에서 close가 발생했습니다!');
       };
 
@@ -265,6 +291,7 @@ const Practice = () => {
         }
         console.log('🔌 WebSocket 연결 종료');
         endRecognizingVoice();
+        endWebSocket();
         console.log('232번째 줄에서 close가 발생했습니다!');
       };
     };

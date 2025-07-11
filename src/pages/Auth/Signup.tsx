@@ -7,6 +7,7 @@ import mainApi from '../../apis/mainApi';
 const Container = styled.div`
   width: 400px;
   margin: 40px auto;
+  height:800px ;
   background: #eaf2ff;
   padding: 40px 30px;
   border-radius: 12px;
@@ -40,7 +41,7 @@ const Required = styled.span`
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: 90%;
   margin-bottom: 8px;
   padding: 12px;
   border: 1.5px solid #bcd;
@@ -69,8 +70,9 @@ const Signup: React.FC = () => {
   const [form, setForm] = useState({
     email: '',
     password: '',
-    username: '',
+    nickname: '',
     passwordCheck: '',
+    birthday:'',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,7 +90,8 @@ const Signup: React.FC = () => {
       const res = await mainApi.post('/api/auth/signup', {
         email: form.email,
         password: form.password,
-        username: form.username,
+        nickname: form.nickname,
+        birthday: form.birthday,
       });
       if (res.data.success) {
         alert(res.data.message); // "회원가입이 완료되었습니다" 
@@ -105,11 +108,15 @@ const Signup: React.FC = () => {
     <Container>
       <Title>로고 & 어플명</Title>
       <form onSubmit={handleSignup}>
-        <Label htmlFor="username">
-          이름<Required>*</Required>
+        <Label htmlFor="nickname">
+          닉네임<Required>*</Required>
         </Label>
-        <Input id="username" value={form.username} onChange={handleChange} placeholder="이름을 입력해주세요." />
-
+        <Input id="nickname" value={form.nickname} onChange={handleChange} placeholder="이름을 입력해주세요." />
+        <Label htmlFor="birthday">
+          생년월일<Required>*</Required>
+        </Label>
+        <Input id="birthday" value={form.birthday} onChange={handleChange} placeholder="생년월일을 입력해주세요."></Input>
+        
         <Label htmlFor="email">
           이메일<Required>*</Required>
         </Label>

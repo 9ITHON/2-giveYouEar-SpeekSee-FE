@@ -70,6 +70,13 @@ function hasSpanElement(node: React.ReactNode): boolean {
   return found;
 }
 
+const ReviewDescription = styled.h3`
+  margin-top: 7px;
+  color: #6dabfd;
+  font-size: 12px;
+  font-weight: 700;
+`;
+
 const ScriptSection = ({
   status,
   accuracy,
@@ -99,6 +106,9 @@ const ScriptSection = ({
           ? '문제를 다 풀었어요! 결과를 확인해 보세요!'
           : '버튼을 누른 뒤 아래 문장을 읽어주세요.'}
       </PracticeDescription>
+      {path === 'review' && (
+        <ReviewDescription>(강조된 부분을 유의하며 읽어주세요!)</ReviewDescription>
+      )}
       <ScriptSectionWrapper>
         {(status !== 5 || (status === 5 && path === 'script')) && (
           <ScriptContent $status={status} $hasSpan={hasSpanElement(script)}>

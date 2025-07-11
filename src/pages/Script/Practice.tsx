@@ -325,7 +325,7 @@ const Practice = () => {
         step={step}
         totalStep={scripts.length}
         script={curScript}
-        path={paths[1]}
+        path={paths[paths.length - 2]}
       />
       <Divider />
       <ActivityButtons

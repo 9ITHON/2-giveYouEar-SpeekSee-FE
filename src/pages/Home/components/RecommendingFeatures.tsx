@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import LeftIcon from '../../../assets/png/left.png';
 import RightIcon from '../../../assets/png/right.png';
-import Slide from './RecommendingFeaturesSlide';
+import Slide from './Slide';
 import { useState } from 'react';
 
 const RecommendingFeatureStyle = styled.div`
@@ -38,15 +38,15 @@ const RecommendingFeatures = () => {
       </SlideButton>
       <Slide idx={idx} />
       <SlideButton
-        style={{ right: '0px', cursor: idx !== 1 ? 'pointer' : 'default' }}
-        onClick={() => setIdx(prev => prev + Number(prev !== 1))}
+        style={{ right: '0px', cursor: idx !== 2 ? 'pointer' : 'default' }}
+        onClick={() => setIdx(prev => prev + Number(prev !== 2))}
       >
         <img
           src={RightIcon}
           alt="오른쪽"
           width="4"
           height="10"
-          style={{ display: idx === 1 ? 'none' : 'inline', marginRight: '6px' }}
+          style={{ display: idx === 2 ? 'none' : 'inline', marginRight: '6px' }}
         />
       </SlideButton>
     </RecommendingFeatureStyle>

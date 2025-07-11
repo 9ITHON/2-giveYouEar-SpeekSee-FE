@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import ActivityButton from './ActivityButton';
 import AnalysingText from './AnalysingText';
 import HomeIcon from '../../../assets/png/back-home.png';
-import NextIcon from '../../../assets/png/next.png';
-import RepeatIcon from '../../../assets/png/repeat.png';
 import RecordIcon from '../../../assets/png/record.png';
 import RecordingIcon from '../../../assets/png/recording.png';
 
@@ -25,14 +23,7 @@ const ActivityButtonsStyle = styled.div`
   padding: 8em 0 6.4em 0;
 `;
 
-const ActivityButtons = ({
-  status,
-  setStatus,
-  isTalking,
-  totalStep,
-  handleRecordBtn,
-  setStep,
-}: ActivityButtonsProps) => {
+const ActivityButtons = ({ status, isTalking, handleRecordBtn }: ActivityButtonsProps) => {
   const navigate = useNavigate();
   return (
     <ActivityButtonsStyle>
@@ -46,41 +37,10 @@ const ActivityButtons = ({
             handleRecordBtn();
           }}
         >
-          {status === 0 ? '녹음하기' : status === 1 ? '녹음 중...' : '완료'}
+          {status === 0 ? '녹음하기' : status === 1 ? '녹음 중...' : '완료!'}
         </ActivityButton>
       )}
       {status === 3 && <AnalysingText>분석중 ...</AnalysingText>}
-      {status === 4 && (
-        <ActivityButton
-          icon={NextIcon}
-          width={42.5}
-          diffSize={16}
-          onClick={() => {
-            setStep(prev => {
-              if (prev === totalStep) {
-                setStatus(5);
-                return prev;
-              }
-              return prev + 1;
-            });
-            setStatus(0);
-          }}
-        >
-          넘어가기
-        </ActivityButton>
-      )}
-      {status === 4 && (
-        <ActivityButton
-          icon={RepeatIcon}
-          width={40}
-          diffSize={12}
-          onClick={() => {
-            return;
-          }}
-        >
-          다시 연습하기
-        </ActivityButton>
-      )}
       {status === 5 && (
         <ActivityButton
           width={38}

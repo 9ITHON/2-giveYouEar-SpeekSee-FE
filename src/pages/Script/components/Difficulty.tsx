@@ -5,17 +5,38 @@ import { useNavigate } from 'react-router-dom';
 
 const DifficultyStyle = styled.div`
   display: flex;
+  color: #6dabfd;
+  font-size: 12px;
+  font-weight: 300;
 `;
 
-const Difficulty = ({ category }: { category: string }) => {
+const DifficultButton = styled.span`
+  margin: 0 3px;
+  color: #6dabfd;
+  font-size: 12px;
+  font-weight: 400;
+  &:first-child {
+    margin-left: 0;
+  }
+`;
+
+const Difficulty = ({
+  category,
+  isLoading,
+  setIsLoading,
+}: {
+  category: string;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const navigate = useNavigate();
   const goToThePractice = useCallback(async (category: string, difficulty: string) => {
     try {
-      console.log(category, difficulty);
+      setIsLoading(prev => !prev);
       const response = await createDailyScript(category, difficulty);
       if (response) {
         const data = response.data.data;
-        console.log(data);
+        setIsLoading(prev => !prev);
         navigate(`/script/${data.id}`, {
           state: {
             id: data.id,
@@ -25,33 +46,37 @@ const Difficulty = ({ category }: { category: string }) => {
       }
     } catch (error) {
       console.log(error);
+      setIsLoading(prev => !prev);
     }
   }, []);
   return (
     <DifficultyStyle>
-      <button
+      <DifficultButton
         onClick={() => {
+          if (isLoading) return;
           goToThePractice(category, 'HARD');
         }}
       >
         상
-      </button>{' '}
+      </DifficultButton>{' '}
       /
-      <button
+      <DifficultButton
         onClick={() => {
+          if (isLoading) return;
           goToThePractice(category, 'MEDIUM');
         }}
       >
-        중
-      </button>{' '}
+        중{' '}
+      </DifficultButton>{' '}
       /
-      <button
+      <DifficultButton
         onClick={() => {
+          if (isLoading) return;
           goToThePractice(category, 'EASY');
         }}
       >
         하
-      </button>
+      </DifficultButton>
     </DifficultyStyle>
   );
 };

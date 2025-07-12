@@ -4,21 +4,25 @@ interface ActivityButtonImgProps {
   $diffSize: number;
 }
 
-const ActivityButtonStyle = styled.button`
+interface ActivityButtonProps {
+  $isTalking: boolean | undefined;
+}
+
+const ActivityButtonStyle = styled.button<ActivityButtonProps>`
   display: flex;
   flex-direction: column;
   justify-content: end;
   align-items: center;
-  background: #d7e8ff;
-  border: 2px solid #539dff;
+  background: ${props => (props.$isTalking ? '#539dff' : '#d7e8ff')};
+  border: 2px solid ${props => (props.$isTalking ? '#ffffff' : '#539dff')};
   border-radius: 12px;
   padding: 10px;
   width: 10rem;
   height: 10rem;
 `;
 
-const ActivityButtonText = styled.span`
-  color: #539dff;
+const ActivityButtonText = styled.span<ActivityButtonProps>`
+  color: ${props => (props.$isTalking ? '#ffffff' : '#539dff')};
   font-size: 12px;
   font-weight: 700;
 `;
@@ -29,21 +33,23 @@ const ActivityButtonImg = styled.img<ActivityButtonImgProps>`
 
 const ActivityButton = ({
   icon,
+  isTalking,
   width,
   diffSize,
   onClick,
   children,
 }: {
-  icon: string; // 이미지 import 변수 타입
+  icon: string;
+  isTalking?: boolean | undefined;
   width: number;
   diffSize: number;
   onClick?: () => void;
   children: React.ReactNode;
 }) => {
   return (
-    <ActivityButtonStyle onClick={onClick}>
+    <ActivityButtonStyle $isTalking={isTalking} onClick={onClick}>
       <ActivityButtonImg src={icon} alt="" width={width} $diffSize={diffSize} />
-      <ActivityButtonText>{children}</ActivityButtonText>
+      <ActivityButtonText $isTalking={isTalking}>{children}</ActivityButtonText>
     </ActivityButtonStyle>
   );
 };

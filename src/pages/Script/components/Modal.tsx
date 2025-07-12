@@ -51,7 +51,8 @@ const ModalButton = styled.button<{ $type: 'yes' | 'no' }>`
 const Modal = ({ setIsClosed }: { setIsClosed: React.Dispatch<React.SetStateAction<boolean>> }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const path = location.pathname.split('/');
+  const paths = location.pathname.split('/');
+  const scriptid = Number(paths[paths.length - 1]);
   const modalRef = useRef<HTMLDivElement>(null);
   return (
     <ModalBackground ref={modalRef}>
@@ -63,9 +64,10 @@ const Modal = ({ setIsClosed }: { setIsClosed: React.Dispatch<React.SetStateActi
             $type="yes"
             onClick={async () => {
               try {
-                const response = await deleteDailyScript(Number(path[path.length - 1]));
+                console.log(scriptid);
+                const response = await deleteDailyScript(scriptid);
                 if (response.data.success) {
-                  console.log(`${Number(path[path.length - 1])}번 대본 삭제를 정상 처리했습니다!`);
+                  console.log(`${scriptid}번 대본 삭제를 정상 처리했습니다!`);
                   navigate('/script', { replace: true });
                 }
               } catch (error) {

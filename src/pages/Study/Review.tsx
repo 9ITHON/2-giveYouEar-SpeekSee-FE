@@ -9,11 +9,6 @@ const ReviewStyle = styled.div`
   padding: 0 24px;
 `;
 
-const ReviewStyle = styled.div`
-  margin-top: 18px;
-  padding: 0 24px;
-`;
-
 const Review = () => {
   const [reviews, setReviews] = useState<Record<string, any>[]>([]);
 

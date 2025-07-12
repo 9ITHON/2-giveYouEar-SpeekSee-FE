@@ -32,17 +32,18 @@ const Review = () => {
           key={index}
           title={'데일리 추천 대본'}
           description={review.title}
-          detailOne={review.detail}
-          onClick={() => navigate(`/script/review/${review.id}`, {
-            state: {
-              id: review.id,
-              content: review.content,
-            }
-          })}
+          detailOne={review.content}
+          onClick={() =>
+            navigate(`/script/review/${review.id}`, {
+              state: {
+                id: review.id,
+                content: review.content,
+              },
+            })
+          }
         />
       ))}
     </ReviewStyle>
   );
 };
 export default Review;
-

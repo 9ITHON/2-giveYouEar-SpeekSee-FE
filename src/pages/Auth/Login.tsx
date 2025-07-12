@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import mainApi from '../../apis/mainApi';
+import logo from '../../assets/png/logo.png';
 
 const KAKAO_REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URI;
 const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID;
@@ -21,7 +22,6 @@ const Container = styled.div`
 `;
 
 const Title = styled.div`
-  background: #ddd;
   margin-top: 100px;
   height: 100px;
   margin-bottom: 32px;
@@ -154,7 +154,9 @@ const Login: React.FC = () => {
 
   return (
     <Container>
-      <Title>로고 & 어플명</Title>
+      <Title>
+      <img src={logo} alt="로고" style={{ height: 60, marginRight: 12 }} />
+      </Title>
       <form onSubmit={handleLogin}>
         <Label htmlFor="email">이메일</Label>
         <Input

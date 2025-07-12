@@ -122,7 +122,7 @@ const Practice = () => {
   useEffect(() => {
     curScriptRef.current = curScript;
   }, [curScript]);
-      
+
   const handleRecordBtn = useCallback(() => {
     if (status === 0) {
       startRecognizingVoice();
@@ -263,7 +263,7 @@ const Practice = () => {
             if (subwords.length > wordsLengthRef.current) {
               for (
                 let i = wordsLengthRef.current + checkIdxRef.current;
-                i < 39 && i < subwords.length + checkIdxRef.current;
+                i < expectedWordsRef.current.length && i < subwords.length + checkIdxRef.current;
                 i++
               ) {
                 const currentElement = curScriptRef.current[i];

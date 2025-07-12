@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import mainApi from '../../apis/mainApi';
+import logo from '../../assets/png/logo.png';
+
+const KAKAO_REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URI;
+const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID;
+const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
+
+const GOOGLE_REDIRECT_URI = import.meta.env.VITE_GOOGLE_REDIRECT_URL;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${GOOGLE_REDIRECT_URI}&response_type=code&scope=openid%20email%20profile`;
 
 const Container = styled.div`
   width: 400px;
+  height: 800px;
   margin: 40px auto;
   background: #eaf2ff;
   padding: 40px 30px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 `;
 
 const Title = styled.div`
-  background: #ddd;
+  margin-top: 100px;
   height: 100px;
   margin-bottom: 32px;
   display: flex;
@@ -95,10 +105,18 @@ const OrText = styled.span`
 `;
 
 const JoinButton = styled(Button)`
-  background:  #7daaff;
+  background: #7daaff;
   color: #fff;
   margin-bottom: 0;
 `;
+
+const handleKakaoLogin = () => {
+  window.location.href = kakaoAuthUrl;
+};
+
+const handleGoogleLogin = () => {
+  window.location.href = googleAuthUrl;
+};
 
 const Login: React.FC = () => {
   const [form, setForm] = useState({
@@ -123,7 +141,7 @@ const Login: React.FC = () => {
         localStorage.setItem('accessToken', res.data.data.accessToken);
         localStorage.setItem('refreshToken', res.data.data.refreshToken);
         alert('로그인 성공!');
-        window.location.href = '/dashboard';
+        window.location.href = '/';
       } else {
         alert(res.data.message || '로그인 실패');
       }
@@ -136,12 +154,25 @@ const Login: React.FC = () => {
 
   return (
     <Container>
-      <Title>로고 & 어플명</Title>
+      <Title>
+      <img src={logo} alt="로고" style={{ height: 60, marginRight: 12 }} />
+      </Title>
       <form onSubmit={handleLogin}>
         <Label htmlFor="email">이메일</Label>
-        <Input id="email" value={form.email} onChange={handleChange} placeholder="이메일을 입력해주세요." />
+        <Input
+          id="email"
+          value={form.email}
+          onChange={handleChange}
+          placeholder="이메일을 입력해주세요."
+        />
         <Label htmlFor="password">비밀번호</Label>
-        <Input id="password" type="password" value={form.password} onChange={handleChange} placeholder="비밀번호를 입력해주세요." />
+        <Input
+          id="password"
+          type="password"
+          value={form.password}
+          onChange={handleChange}
+          placeholder="비밀번호를 입력해주세요."
+        />
         <Button type="submit" disabled={isLoading}>
           {isLoading ? '로그인 중...' : '로그인'}
         </Button>
@@ -158,7 +189,29 @@ const Login: React.FC = () => {
         <OrText>또는</OrText>
         <Line />
       </Divider>
-      <JoinButton type="button" onClick={()=> window.location.href ='/signup'}>회원가입하기</JoinButton>
+      <JoinButton type="button" onClick={() => (window.location.href = '/signup')}>
+        회원가입하기
+      </JoinButton>
+
+      <div style={{ marginTop: '12px' }}>
+        <Button
+          type="button"
+          onClick={handleGoogleLogin}
+          style={{ background: '#FFFFFF', color: '#353000' }}
+        >
+          구글로 로그인
+        </Button>
+      </div>
+
+      <div>
+        <Button
+          type="button"
+          onClick={handleKakaoLogin}
+          style={{ background: '#FEE500', color: '#353000' }}
+        >
+          카카오로 로그인
+        </Button>
+      </div>
     </Container>
   );
 };

@@ -4,8 +4,18 @@ import CloseButtonImg from '../../assets/png/daily-script-button.png';
 import CloseButton from './components/CloseButton';
 import Divider from './components/Divider';
 import ActivityButtons from './components/ActivityButtons';
-import { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Modal from './components/Modal';
+import { useLocation } from 'react-router-dom';
+import getOneScript from '../../apis/getOneScript';
+import RedText from './components/RedText';
+import BlueText from './components/BlueText';
+import SkyblueText from './components/SkyblueText';
+import { letsCheckSpokenWords } from './utils/letsCheckSpokenWords';
+import type { MappedResult } from './types/MappedResult';
+import getPractice from '../../apis/getPractice';
+import curReviewScript from './utils/curReviewScript';
+import LightRedText from './components/LightRedText';
 
 const PracticeStyle = styled.div`
   height: 100%;
@@ -14,6 +24,7 @@ const PracticeStyle = styled.div`
 `;
 
 const Practice = () => {
+  // 대본 관련
   /** status 소개
    * --------------
    * 0: 녹음 전
@@ -23,30 +34,318 @@ const Practice = () => {
    * 4: 다음 문제/다시 연습
    * 5: 모든 문제 해결
    */
-  const [status, setStatus] = useState<number>(0);
-  const [isClosed, setIsClosed] = useState<boolean>(false);
-  const [problemNo, setProblemNo] = useState<number>(1);
-  const scripts: React.ReactNode[] = [
-    '뻗은가지 굽은가지 구부러진 가지 가지가지의\n가지 올라가지 늦가지 찐가지 달린가지\n조롱조롱 맺힌 가지 열린 가지 달린 가지\n도롱조롱 달린 가지 젊은 가지 늙은 가지\n나물할 가지 냉국 탈 가지 가지각색\n가여놓아도 나 못 먹긴 마찬가지.',
-    '간장장의 공장장은 간 공장장이고\n된장장의 공장장은 된 공장장이다.',
-    '비전공자도 끝까지 완주하는\n국가유산급 프론트엔드 교육 등장',
-  ];
+
+  const [status, setStatus] = useState<number>(0); // 학습 진행 상태
+  const [isClosed, setIsClosed] = useState<boolean>(false); // 대본 연습 창 닫기 버튼 클릭 확인
+  const [step, setStep] = useState<number>(1); // 학습 대본 단계
+  const [scripts, setScripts] = useState<string[]>([]); // 학습 진행 대본 목록(초기 진단 테스트: 3개, 데일리 대본 연습: 1개)
+  const [curScript, setCurScript] = useState<React.ReactElement[]>([]);
+  const curScriptRef = useRef<React.ReactElement[]>([]);
+  const expectedWordsRef = useRef<string[]>([]); // 예상되는 단어들을 <SkyblueText> 컴포넌트로 감싸서 관리
+  const wordsLengthRef = useRef<number>(0);
+  const checkIdxRef = useRef<number>(0);
+  const totalCurScriptLength = useRef<number>(0);
+  const [accuracy, setAccuracy] = useState<number>(0); // 학습 결과 - 정확도
+  const [totalCount, setTotalCount] = useState<number>(0); // 학습 진행 - 총 단어 개수
+  const [correctCount, setCorrectCount] = useState<number>(0); // 학습 진행 - 맞은 단어 개수
+  const location = useLocation();
+  const paths = location.pathname.split('/');
+  const scriptid = Number(paths[paths.length - 1]);
+  const memberid = 1;
+
+  // 오디오 및 웹소켓 관련
+  const [isTalking, setIsTalking] = useState(false);
+  const webSocket = useRef<WebSocket>(null);
+  const stream = useRef<MediaStream>(null);
+  const mediaRecorder = useRef<MediaRecorder | null>(null);
+  const audioContext = useRef<AudioContext | null>(null);
+  const processor = useRef<AudioWorkletNode | null>(null);
+
+  useEffect(() => {
+    const getScript = async () => {
+      try {
+        const response = await getOneScript(scriptid);
+        if (response.data.success) {
+          return response.data.data.content;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+      return null;
+    };
+
+    const getReviewScript = async () => {
+      try {
+        const response = await getPractice();
+        if (response.data.success) {
+          return response.data.data;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const fetchAndSetScripts = async () => {
+      const curScripts = [...scripts];
+      const reviews = await getReviewScript();
+      if (location.state === null) {
+        const newScript = await getScript();
+        if (newScript) curScripts.push(newScript);
+      } else {
+        curScripts.push(location.state.content);
+      }
+      setScripts(curScripts);
+      expectedWordsRef.current = curScripts[step - 1].split(' ');
+      let expectedWords;
+      if (paths[paths.length - 2] === 'review') {
+        console.log('review');
+        const isWrongOrCorrect = curReviewScript(scriptid, reviews, expectedWordsRef.current);
+        expectedWords = curScripts[step - 1].split(' ').map((value: string, index: number) => {
+          if (!isWrongOrCorrect || (isWrongOrCorrect && isWrongOrCorrect[index])) {
+            return <SkyblueText key={index}>{value}</SkyblueText>;
+          } else {
+            return <LightRedText key={index}>{value}</LightRedText>;
+          }
+        });
+      } else {
+        expectedWords = curScripts[step - 1].split(' ').map((value: string, index: number) => {
+          return <SkyblueText key={index}>{value}</SkyblueText>;
+        });
+      }
+      totalCurScriptLength.current = expectedWordsRef.current.length;
+      setCurScript(expectedWords);
+    };
+
+    fetchAndSetScripts();
+  }, []);
+
+  useEffect(() => {
+    curScriptRef.current = curScript;
+  }, [curScript]);
+      
   const handleRecordBtn = useCallback(() => {
     if (status === 0) {
-      setStatus(1);
+      startRecognizingVoice();
     } else if (status === 1) {
+      console.log('녹음 종료 시도!');
       setStatus(2);
-      setTimeout(() => {
-        setStatus(3);
-        setTimeout(() => {
-          setStatus(4);
-        }, 2000);
-      }, 2000);
+      endRecognizingVoice();
+      webSocket.current?.send(JSON.stringify({ type: 'END_SENTENCE' }));
     }
   }, [status]);
+
+  const endWebSocket = useCallback(() => {
+    if (webSocket.current) {
+      webSocket.current.close();
+      webSocket.current = null;
+    }
+  }, []);
+
+  const endRecognizingVoice = useCallback(() => {
+    if (stream.current) {
+      stream.current.getTracks().forEach(track => track.stop());
+      stream.current = null;
+    }
+    if (processor.current) {
+      processor.current.disconnect();
+      processor.current = null;
+    }
+    if (audioContext.current) {
+      audioContext.current.close();
+      audioContext.current = null;
+    }
+    if (mediaRecorder.current) {
+      mediaRecorder.current.stop();
+      mediaRecorder.current = null;
+    }
+  }, []);
+
+  const startRecognizingVoice = useCallback(() => {
+    const start = async () => {
+      endRecognizingVoice();
+      endWebSocket();
+      console.log('107번째 줄에서 close가 발생했습니다!');
+      webSocket.current = new WebSocket('ws://54.180.116.11:8080/ws/stt');
+
+      webSocket.current.onopen = () => {
+        webSocket.current?.send(
+          JSON.stringify({
+            type: 'AUTH',
+            token: `Bearer ${import.meta.env.VITE_ACCESS_TOKEN}`,
+            memberId: memberid,
+            scriptId: scriptid,
+            mode: 'NORMAL',
+          }),
+        );
+        setTimeout(async () => {
+          try {
+            const sampleRate = 16000;
+            const chunkRate = 100;
+            stream.current = await navigator.mediaDevices.getUserMedia({
+              audio: {
+                sampleRate: sampleRate,
+                channelCount: 1,
+              },
+            });
+            mediaRecorder.current = new MediaRecorder(stream.current);
+            audioContext.current = new window.AudioContext({
+              sampleRate: sampleRate,
+            });
+            const source = audioContext.current.createMediaStreamSource(stream.current);
+            await audioContext.current.audioWorklet.addModule('/linear16-processor.js');
+
+            processor.current = new AudioWorkletNode(audioContext.current, 'linear16-processor');
+            processor.current.port.onmessage = event => {
+              if (webSocket.current?.readyState === WebSocket.OPEN) {
+                webSocket.current.send(event.data);
+              }
+            };
+
+            const analyser = audioContext.current.createAnalyser();
+            analyser.fftSize = 256;
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            source.connect(processor.current);
+            processor.current.connect(audioContext.current.destination);
+            source.connect(analyser);
+
+            const detectTalking = () => {
+              analyser.getByteFrequencyData(dataArray);
+              const avgVolume = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+              if (avgVolume >= 20) {
+                setIsTalking(true);
+              } else {
+                setIsTalking(false);
+              }
+              requestAnimationFrame(detectTalking);
+            };
+
+            detectTalking();
+
+            mediaRecorder.current.onstop = () => {
+              if (processor.current && audioContext.current) {
+                source.disconnect(processor.current);
+                processor.current.disconnect(audioContext.current.destination);
+              }
+            };
+
+            mediaRecorder.current.start(chunkRate);
+            setStatus(1);
+          } catch (error) {
+            console.error(error);
+            endRecognizingVoice();
+            endWebSocket();
+            console.log('175번째 줄에서 close가 발생했습니다!');
+            setStatus(0);
+          }
+        }, 300);
+      };
+
+      webSocket.current.onmessage = e => {
+        try {
+          const data = JSON.parse(e.data);
+          console.log(data);
+          if (data.type === 'AUTH_OK') {
+            console.log('🔐 인증 성공');
+          } else if (data.type === 'ERROR') {
+            console.error(`❌ 오류: ${data.message}`);
+            endRecognizingVoice();
+            endWebSocket();
+            console.log('190번째 줄에서 close가 발생했습니다!');
+          } else if (data.type === 'INTERIM_FINAL') {
+            console.log('💡 최종 인식 결과:', data.transcript);
+            checkIdxRef.current += wordsLengthRef.current;
+            wordsLengthRef.current = 0;
+          } else if (data.type === 'INTERIM') {
+            console.log('📩 인식 결과:', data.transcript);
+            const curWords = [...curScriptRef.current];
+            const subwords = data.transcript.split(' ');
+            if (subwords.length > wordsLengthRef.current) {
+              for (
+                let i = wordsLengthRef.current + checkIdxRef.current;
+                i < 39 && i < subwords.length + checkIdxRef.current;
+                i++
+              ) {
+                const currentElement = curScriptRef.current[i];
+                if (currentElement && currentElement.type === SkyblueText) {
+                  curWords[i] = <BlueText key={i}>{expectedWordsRef.current[i]}</BlueText>;
+                } else if (currentElement && currentElement.type === LightRedText) {
+                  curWords[i] = <RedText key={i}>{expectedWordsRef.current[i]}</RedText>;
+                } else {
+                  curWords[i] = <BlueText key={i}>{expectedWordsRef.current[i]}</BlueText>;
+                }
+              }
+              curScriptRef.current = curWords;
+              setCurScript(curScriptRef.current);
+              wordsLengthRef.current = subwords.length;
+            }
+          } else if (data.type === 'FINAL_FLUSH') {
+            if (webSocket.current && webSocket.current.readyState === webSocket.current.OPEN) {
+              console.log('녹음 종료! 결과 전송 중...');
+              setTimeout(() => {
+                webSocket.current?.close();
+                webSocket.current = null;
+                endWebSocket();
+              }, 1000);
+            }
+            setTimeout(() => {
+              setStatus(3);
+              const words = letsCheckSpokenWords(data.words, expectedWordsRef.current);
+              let correctWordsCount = 0;
+              setCurScript(
+                words.map((word: MappedResult, index: number) => {
+                  if (word.correct) {
+                    correctWordsCount += 1;
+                    return <BlueText key={index}>{word.word}</BlueText>;
+                  }
+                  return <RedText key={index}>{word.expected}</RedText>;
+                }),
+              );
+              setTimeout(() => {
+                setStatus(5);
+                setAccuracy(Math.floor((correctWordsCount / words.length) * 1000) / 10);
+                setCorrectCount(correctWordsCount);
+                setTotalCount(words.length);
+              }, 4000);
+            }, 3000);
+            endRecognizingVoice();
+            endWebSocket();
+            console.log('206번째 줄에서 close가 발생했습니다!');
+          } else {
+            console.log('sibal');
+          }
+        } catch (err) {
+          console.warn('❌ 응답 처리 중 오류:', err);
+          endRecognizingVoice();
+          endWebSocket();
+          console.log('215번째 줄에서 close가 발생했습니다!');
+        }
+      };
+
+      webSocket.current.onerror = e => {
+        console.error('🚨 WebSocket 에러:', e);
+        endRecognizingVoice();
+        endWebSocket();
+        console.log('222번째 줄에서 close가 발생했습니다!');
+      };
+
+      webSocket.current.onclose = e => {
+        console.log('websocket code:', e.code, ', wasClean:', e.wasClean);
+        if (e.code !== 1000) {
+          console.log('비정상적인 종료:', e.code);
+        }
+        console.log('🔌 WebSocket 연결 종료');
+        endRecognizingVoice();
+        endWebSocket();
+        console.log('232번째 줄에서 close가 발생했습니다!');
+      };
+    };
+    start();
+  }, []);
+
   return (
     <PracticeStyle>
-      {isClosed && <Modal setIsClosed={setIsClosed}/>}
+      {isClosed && <Modal setIsClosed={setIsClosed} />}
       <CloseButton
         onClick={() => {
           setIsClosed(prev => !prev);
@@ -54,13 +353,24 @@ const Practice = () => {
       >
         <img src={CloseButtonImg} alt="daily-scripts-page-close-button" width="18" height="18" />
       </CloseButton>
-      <ScriptSection status={status} problemNo={problemNo} script={scripts[problemNo - 1]} />
+      <ScriptSection
+        status={status}
+        accuracy={accuracy}
+        correctCount={correctCount}
+        totalCount={totalCount}
+        step={step}
+        totalStep={scripts.length}
+        script={curScript}
+        path={paths[paths.length - 2]}
+      />
       <Divider />
       <ActivityButtons
         status={status}
         setStatus={setStatus}
+        isTalking={isTalking}
+        totalStep={scripts.length}
         handleRecordBtn={handleRecordBtn}
-        setProblemNo={setProblemNo}
+        setStep={setStep}
       />
     </PracticeStyle>
   );

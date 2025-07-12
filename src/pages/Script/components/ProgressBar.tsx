@@ -7,6 +7,7 @@ interface ProgressGageProps {
 
 interface ProgressBarProps {
   step: number;
+  totalStep: number;
 }
 
 const ProgressBarStyle = styled.div`
@@ -27,10 +28,10 @@ const ProgressGage = styled.div<ProgressGageProps>`
   background: #81b7ff;
 `;
 
-const ProgressBar = ({ step }: ProgressBarProps) => {
+const ProgressBar = ({ step, totalStep }: ProgressBarProps) => {
   return (
     <ProgressBarStyle>
-      <ProgressGage $step={step} $totalStep={3} />
+      <ProgressGage $step={step} $totalStep={totalStep} />
     </ProgressBarStyle>
   );
 };

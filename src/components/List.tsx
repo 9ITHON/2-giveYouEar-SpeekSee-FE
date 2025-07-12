@@ -7,6 +7,8 @@ const ListStyle = styled.div`
   border-radius: 8px;
   padding: 18px 16px;
   color: #6dabfd;
+  position: relative;
+  cursor: pointer;
 `;
 
 const ListDescription = styled.span`
@@ -39,20 +41,25 @@ const List = ({
   description,
   detailOne,
   detailTwo,
+  onClick,
 }: {
   title: string;
-  description: string;
+  description?: string | undefined;
   detailOne: React.ReactNode;
   detailTwo?: React.ReactNode;
+  active?: boolean | undefined;
+  onClick?: () => void;
 }) => {
   return (
     <ListStyle>
-      <Title>{title}</Title>
-      <ListDescription>{description}</ListDescription>
-      <ListDetail>
-        <ListDetailOne>{detailOne}</ListDetailOne>
-        <ListDetailTwo>{detailTwo}</ListDetailTwo>
-      </ListDetail>
+      <div onClick={onClick}>
+        <ListTitle>{title}</ListTitle>
+        <ListDescription>{description}</ListDescription>
+        <ListDetail>
+          <ListDetailOne>{detailOne}</ListDetailOne>
+          <ListDetailTwo>{detailTwo}</ListDetailTwo>
+        </ListDetail>
+      </div>
     </ListStyle>
   );
 };

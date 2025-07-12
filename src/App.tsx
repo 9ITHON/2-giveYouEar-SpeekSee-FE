@@ -13,6 +13,11 @@ import Main from './layout/Main';
 import Attendance from './pages/Attendance/Attendance';
 import Study from './pages/Study/Study';
 import Ranking from './pages/Ranking/Ranking';
+import KakaoLogin from './pages/Auth/kakaologin';
+import Redirect from './pages/Auth/Redirect';
+import Redirect1 from './pages/Auth/Redirect1';
+import  GoogleLogin  from './pages/Auth/googlelogin';
+import Splash from './pages/Splash';
 
 const AppStyle = styled.div`
   display: flex;
@@ -34,9 +39,8 @@ function App() {
           <Route element={<Main />}>
             <Route path="/" element={<Home />} />
             <Route path="attendance" element={<Attendance />} />
-            <Route path="study" element={<Study />}>
-              <Route path="review" element={<Review />} />
-            </Route>
+            <Route path="study" element={<Study />} />
+            <Route path="study/review" element={<Review />} />
             <Route path="script" element={<Category />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="ranking" element={<Ranking />} />
@@ -46,6 +50,12 @@ function App() {
           <Route path="signup" element={<Signup />} />
           <Route path="test" element={<Test />} />
           <Route path="script/:script_id" element={<Practice />} />
+          <Route path="script/review/:script_id" element={<Practice />} />
+          <Route path="oauth/callback" element={<Redirect1 provider="GOOGLE" />}/>
+          <Route path="oauth/callback/kakao"  element={ <Redirect provider="KAKAO"/> } />
+          <Route path="kakaologin" element={<KakaoLogin/>}/>
+          <Route path="googlelogin" element={<GoogleLogin/>}/>
+          <Route path="Splash" element={<Splash/>}/>
         </Routes>
       </Common>
     </AppStyle>

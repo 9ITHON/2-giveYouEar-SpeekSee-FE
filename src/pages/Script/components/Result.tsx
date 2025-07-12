@@ -1,63 +1,63 @@
 import styled from 'styled-components';
+import Text from './Text';
+import Measure from './Measure';
+import Accuracy from './Accuracy';
 
 const ResultStyle = styled.div`
-  width: 205px;
   margin-top: 10px;
   border: 1px solid #6dabfd;
   border-radius: 16px;
-  padding: 0 7px;
+  padding: 12px;
   background: #ffffff;
 `;
 
-const AccuracyText = styled.span`
-  display: block;
-  text-align: center;
-  color: #81b7ff;
-  font-size: 12px;
-`;
-
-const AccuracyRate = styled.h1`
-  padding-top: 12px;
-  text-align: center;
-  color: #539dff;
-  font-size: 36px;
-`;
-
-const AccuracyStyle = styled.div`
-  border-bottom: 1px solid #6dabfd;
-  padding: 24px 0px;
-`;
-
-const Accuracy = ({ accuracy }: { accuracy: number }) => {
-  return (
-    <AccuracyStyle>
-      <AccuracyText>정확도(%)</AccuracyText>
-      <AccuracyRate>{accuracy}</AccuracyRate>
-    </AccuracyStyle>
-  );
-};
-
-const CheerMessage = styled.span`
-  height: 70px;
-  margin: 16px 0 32px 0;
+const WordsCountBox = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  text-align: center;
-  color: #81b7ff;
-  font-size: 12px;
-  white-space: pre-line;
-  line-height: 1.1em;
 `;
 
-const Result = () => {
-  const accuracyRate = 87;
+const WordsCount = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 21px 8px 21px;
+  & > h1 {
+    padding-top: 17px;
+    padding-bottom: 18px;
+  }
+`;
+
+const WordsCountBoxDivider = styled.div`
+  height: 89px;
+  margin: 0 8px;
+  margin-bottom: 8px;
+  border: 0.5px solid #b7d6ff;
+`;
+
+const Result = ({
+  accuracy,
+  correctCount,
+  totalCount,
+}: {
+  accuracy: number;
+  correctCount: number;
+  totalCount: number;
+}) => {
   return (
     <ResultStyle>
-      <Accuracy accuracy={accuracyRate} />
-      <CheerMessage>
-        {accuracyRate >= 80 ? '잘하고 있어요!\n지금처럼 열심히 해주세요!' : '화이팅'}
-      </CheerMessage>
+      <WordsCountBox>
+        <WordsCount>
+          <Text>전체 단어 수</Text>
+          <Measure>{totalCount}</Measure>
+        </WordsCount>
+        <WordsCountBoxDivider />
+        <WordsCount>
+          <Text>맞은 단어 수</Text>
+          <Measure>{correctCount}</Measure>
+        </WordsCount>
+      </WordsCountBox>
+      <Accuracy accuracy={accuracy} />
     </ResultStyle>
   );
 };

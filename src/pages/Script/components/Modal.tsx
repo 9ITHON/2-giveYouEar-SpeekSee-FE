@@ -1,6 +1,7 @@
 import { useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import deleteDailyScript from '../../../apis/deleteDailyScript';
 
 const ModalBackground = styled.div`
   display: flex;
@@ -49,6 +50,9 @@ const ModalButton = styled.button<{ $type: 'yes' | 'no' }>`
 
 const Modal = ({ setIsClosed }: { setIsClosed: React.Dispatch<React.SetStateAction<boolean>> }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const paths = location.pathname.split('/');
+  const scriptid = Number(paths[paths.length - 1]);
   const modalRef = useRef<HTMLDivElement>(null);
   return (
     <ModalBackground ref={modalRef}>
@@ -56,7 +60,24 @@ const Modal = ({ setIsClosed }: { setIsClosed: React.Dispatch<React.SetStateActi
         <ModalQuestion>학습을 중단하시겠습니까?</ModalQuestion>
         <ModalPS>학습 내용과 진도는 저장되지 않습니다.</ModalPS>
         <ModalButtons>
-          <ModalButton $type="yes" onClick={() => navigate('/script/select', { replace: true })}>
+          <ModalButton
+            $type="yes"
+            onClick={async () => {
+              try {
+                if (paths[paths.length - 2] === 'review') {
+                  navigate('/study/review', { replace: true });
+                  return ;
+                }
+                const response = await deleteDailyScript(scriptid);
+                if (response.data.success) {
+                  console.log(`${scriptid}번 대본 삭제를 정상 처리했습니다!`);
+                  navigate('/script', { replace: true });
+                }
+              } catch (error) {
+                console.log(error);
+              }
+            }}
+          >
             네
           </ModalButton>
           <ModalButton

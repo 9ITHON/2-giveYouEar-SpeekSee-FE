@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import Title from './Title';
 
 const ListStyle = styled.div`
   margin-bottom: 12px;
@@ -10,13 +11,6 @@ const ListStyle = styled.div`
   cursor: pointer;
 `;
 
-const ListTitle = styled.h1`
-  color: #6dabfd;
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 12px;
-`;
-
 const ListDescription = styled.span`
   display: block;
   font-size: 10px;
@@ -24,7 +18,7 @@ const ListDescription = styled.span`
   margin-bottom: 12px;
 `;
 
-const ListDetail = styled.span`
+const ListDetailOne = styled.span`
   display: block;
   font-size: 12px;
   font-weight: 400;
@@ -34,24 +28,37 @@ const ListDetail = styled.span`
   width: 16rem;
 `;
 
+const ListDetailTwo = styled.div``;
+
+const ListDetail = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const List = ({
   title,
   description,
-  detail,
+  detailOne,
+  detailTwo,
   onClick,
 }: {
   title: string;
   description?: string | undefined;
-  detail?: React.ReactNode | undefined;
+  detailOne: React.ReactNode;
+  detailTwo?: React.ReactNode;
   active?: boolean | undefined;
   onClick?: () => void;
 }) => {
   return (
     <ListStyle>
       <div onClick={onClick}>
-        <ListTitle>{title}</ListTitle>
+        <Title>{title}</Title>
         <ListDescription>{description}</ListDescription>
-        <ListDetail>{detail}</ListDetail>
+        <ListDetail>
+          <ListDetailOne>{detailOne}</ListDetailOne>
+          <ListDetailTwo>{detailTwo}</ListDetailTwo>
+        </ListDetail>
       </div>
     </ListStyle>
   );

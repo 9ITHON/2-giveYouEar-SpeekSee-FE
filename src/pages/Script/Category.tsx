@@ -42,7 +42,7 @@ const Select = () => {
           key={index}
           title={field.title}
           description={field.description}
-          detail={field.detail}
+          detailOne={field.detail}
         />
       ))}
       {isLoading && <LoadingScript />}

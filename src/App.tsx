@@ -50,12 +50,12 @@ function App() {
           <Route path="signup" element={<Signup />} />
           <Route path="test" element={<Test />} />
           <Route path="script/:script_id" element={<Practice />} />
+          <Route path="script/review/:script_id" element={<Practice />} />
           <Route path="oauth/callback" element={<Redirect1 provider="GOOGLE" />}/>
           <Route path="oauth/callback/kakao"  element={ <Redirect provider="KAKAO"/> } />
           <Route path="kakaologin" element={<KakaoLogin/>}/>
           <Route path="googlelogin" element={<GoogleLogin/>}/>
           <Route path="Splash" element={<Splash/>}/>
-
         </Routes>
       </Common>
     </AppStyle>

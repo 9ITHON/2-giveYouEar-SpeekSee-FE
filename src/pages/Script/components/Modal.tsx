@@ -64,7 +64,10 @@ const Modal = ({ setIsClosed }: { setIsClosed: React.Dispatch<React.SetStateActi
             $type="yes"
             onClick={async () => {
               try {
-                console.log(scriptid);
+                if (paths[paths.length - 2] === 'review') {
+                  navigate('/study/review', { replace: true });
+                  return ;
+                }
                 const response = await deleteDailyScript(scriptid);
                 if (response.data.success) {
                   console.log(`${scriptid}번 대본 삭제를 정상 처리했습니다!`);

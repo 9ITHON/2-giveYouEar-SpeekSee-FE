@@ -2,11 +2,7 @@ import styled from 'styled-components';
 import List from '../../components/List';
 import { useEffect, useState } from 'react';
 import getUserPracticeScripts from '../../apis/getUserPracticeScripts';
-
-const ReviewStyle = styled.div`
-  margin-top: 18px;
-  padding: 0 24px;
-`;
+import { useNavigate } from 'react-router-dom';
 
 const ReviewStyle = styled.div`
   margin-top: 18px;
@@ -14,33 +10,39 @@ const ReviewStyle = styled.div`
 `;
 
 const Review = () => {
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<Record<string, any>[]>([]);
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
         const response = await getUserPracticeScripts();
-        // response.data의 구조에 따라 아래 코드 수정 필요
-        setReviews(response.data.data); // 예시: response.data가 배열일 경우
+        setReviews([...response.data.data].reverse());
       } catch (error) {
-        // 에러 처리
         console.error(error);
       }
     };
     fetchReviews();
   }, []);
+  const navigate = useNavigate();
   console.log(reviews);
   return (
     <ReviewStyle>
       {reviews.map((review, index) => (
         <List
           key={index}
-          title={"데일리 추천 대본"}
+          title={'데일리 추천 대본'}
           description={review.title}
           detail={review.content}
+          onClick={() => navigate(`/script/review/${review.id}`, {
+            state: {
+              id: review.id,
+              content: review.content,
+            }
+          })}
         />
       ))}
     </ReviewStyle>
   );
 };
 export default Review;
+

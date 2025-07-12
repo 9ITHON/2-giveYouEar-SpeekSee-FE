@@ -1,6 +1,4 @@
-import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import Bookmark from './Bookmark';
 
 const ListStyle = styled.div`
   margin-bottom: 12px;
@@ -40,7 +38,6 @@ const List = ({
   title,
   description,
   detail,
-  active,
   onClick,
 }: {
   title: string;
@@ -49,10 +46,8 @@ const List = ({
   active?: boolean | undefined;
   onClick?: () => void;
 }) => {
-  const location = useLocation();
   return (
     <ListStyle>
-      {location.pathname === '/study' && <Bookmark active={active} />}
       <div onClick={onClick}>
         <ListTitle>{title}</ListTitle>
         <ListDescription>{description}</ListDescription>

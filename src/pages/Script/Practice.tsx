@@ -13,6 +13,9 @@ import BlueText from './components/BlueText';
 import SkyblueText from './components/SkyblueText';
 import { letsCheckSpokenWords } from './utils/letsCheckSpokenWords';
 import type { MappedResult } from './types/MappedResult';
+import getPractice from '../../apis/getPractice';
+import curReviewScript from './utils/curReviewScript';
+import LightRedText from './components/LightRedText';
 
 const PracticeStyle = styled.div`
   height: 100%;
@@ -71,8 +74,20 @@ const Practice = () => {
       return null;
     };
 
+    const getReviewScript = async () => {
+      try {
+        const response = await getPractice();
+        if (response.data.success) {
+          return response.data.data;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     const fetchAndSetScripts = async () => {
       const curScripts = [...scripts];
+      const reviews = await getReviewScript();
       if (location.state === null) {
         const newScript = await getScript();
         if (newScript) curScripts.push(newScript);
@@ -81,9 +96,22 @@ const Practice = () => {
       }
       setScripts(curScripts);
       expectedWordsRef.current = curScripts[step - 1].split(' ');
-      const expectedWords = curScripts[step - 1].split(' ').map((value: string, index: number) => {
-        return <SkyblueText key={index}>{value}</SkyblueText>;
-      });
+      let expectedWords;
+      if (paths[paths.length - 2] === 'review') {
+        console.log('review');
+        const isWrongOrCorrect = curReviewScript(scriptid, reviews, expectedWordsRef.current);
+        expectedWords = curScripts[step - 1].split(' ').map((value: string, index: number) => {
+          if (!isWrongOrCorrect || (isWrongOrCorrect && isWrongOrCorrect[index])) {
+            return <SkyblueText key={index}>{value}</SkyblueText>;
+          } else {
+            return <LightRedText key={index}>{value}</LightRedText>;
+          }
+        });
+      } else {
+        expectedWords = curScripts[step - 1].split(' ').map((value: string, index: number) => {
+          return <SkyblueText key={index}>{value}</SkyblueText>;
+        });
+      }
       totalCurScriptLength.current = expectedWordsRef.current.length;
       setCurScript(expectedWords);
     };
@@ -238,7 +266,14 @@ const Practice = () => {
                 i < 39 && i < subwords.length + checkIdxRef.current;
                 i++
               ) {
-                curWords[i] = <BlueText key={i}>{expectedWordsRef.current[i]}</BlueText>;
+                const currentElement = curScriptRef.current[i];
+                if (currentElement && currentElement.type === SkyblueText) {
+                  curWords[i] = <BlueText key={i}>{expectedWordsRef.current[i]}</BlueText>;
+                } else if (currentElement && currentElement.type === LightRedText) {
+                  curWords[i] = <RedText key={i}>{expectedWordsRef.current[i]}</RedText>;
+                } else {
+                  curWords[i] = <BlueText key={i}>{expectedWordsRef.current[i]}</BlueText>;
+                }
               }
               curScriptRef.current = curWords;
               setCurScript(curScriptRef.current);
@@ -326,7 +361,7 @@ const Practice = () => {
         step={step}
         totalStep={scripts.length}
         script={curScript}
-        path={paths[1]}
+        path={paths[paths.length - 2]}
       />
       <Divider />
       <ActivityButtons

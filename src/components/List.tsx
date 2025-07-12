@@ -53,7 +53,7 @@ const List = ({
   return (
     <ListStyle>
       <div onClick={onClick}>
-        <ListTitle>{title}</ListTitle>
+        <Title>{title}</Title>
         <ListDescription>{description}</ListDescription>
         <ListDetail>
           <ListDetailOne>{detailOne}</ListDetailOne>

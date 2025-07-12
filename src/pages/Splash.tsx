@@ -12,6 +12,7 @@ import 되 from "../assets/png/되.png";
 import 어 from "../assets/png/어.png";
 import characterImg from "../assets/png/캐릭터.png"; 
 
+
 const SplashWrapper = styled.div`
   width: 400px;
   height: 800px;
@@ -28,12 +29,12 @@ const TopBox = styled.div`
   flex-direction: column;
   align-items: center;
   margin-top: 90px;  
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 `;
 
 const Logo = styled.img`
-  width: 180px;
-  margin-bottom: 10px;
+  width: 200px;
+  margin-bottom: 0px;
 `;
 
 
@@ -48,7 +49,7 @@ const CenterBox = styled.div`
 
 const Character = styled.img`
   width: 200px;
-  z-index: 2;
+  z-index: 3;
 `;
 
 const Cylinder = styled.div`
@@ -56,15 +57,24 @@ const Cylinder = styled.div`
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 90%;
-  height: 200px;
-  background: #b3d0f7;
-  border-top-left-radius: 50% 60px;
-  border-top-right-radius: 50% 60px;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+  width: 100%;
+  height: 250px;
+  background: #A2CAFF;
   z-index: 1;
 `;
+
+const Cylindercircle = styled.div`
+  position: absolute;
+  bottom: 200px; 
+  width: 400px;
+  height:100px;
+  background-color: #C9E0FF;
+  border-radius: 50%;
+  z-index: 2;
+  left: 50%;
+  transform: translateX(-50%);
+`;
+
 
 const SubtitleRow = styled.div`
   display: flex;
@@ -91,6 +101,7 @@ const Splash: React.FC = () => {
       <CenterBox>
         <Character src={characterImg} alt="캐릭터" />
       </CenterBox>
+      <Cylindercircle/>
       <Cylinder />
     </SplashWrapper>
   );

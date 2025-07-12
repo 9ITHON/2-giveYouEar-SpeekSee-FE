@@ -29,8 +29,8 @@ const Select = () => {
       detail: <Difficulty category="NEWS" isLoading={isLoading} setIsLoading={setIsLoading} />,
     },
     {
-      title: '잰말놀이',
-      description: '보다 정확하고 신속하게 발음하는 것을 연습해보세요!',
+      title: '일상',
+      description: '일상생활 속 말하기를 연습해보세요!',
       detail: <Difficulty category="DAILY" isLoading={isLoading} setIsLoading={setIsLoading} />,
     },
   ];

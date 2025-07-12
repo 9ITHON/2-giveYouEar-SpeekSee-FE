@@ -11,6 +11,8 @@ import getOneScript from '../../apis/getOneScript';
 import RedText from './components/RedText';
 import BlueText from './components/BlueText';
 import SkyblueText from './components/SkyblueText';
+import { letsCheckSpokenWords } from './utils/letsCheckSpokenWords';
+import type { MappedResult } from './types/MappedResult';
 
 const PracticeStyle = styled.div`
   height: 100%;
@@ -32,18 +34,20 @@ const Practice = () => {
   const [status, setStatus] = useState<number>(0); // 학습 진행 상태
   const [isClosed, setIsClosed] = useState<boolean>(false); // 대본 연습 창 닫기 버튼 클릭 확인
   const [step, setStep] = useState<number>(1); // 학습 대본 단계
-  const [scripts, setScripts] = useState<string[]>([]); // 학습 진행 대본 목록(초기 진단 테스트: 5개, 데일리 대본 연습: 1개)
+  const [scripts, setScripts] = useState<string[]>([]); // 학습 진행 대본 목록(초기 진단 테스트: 3개, 데일리 대본 연습: 1개)
   const [curScript, setCurScript] = useState<React.ReactElement[]>([]);
   const curScriptRef = useRef<React.ReactElement[]>([]);
-  const expectedWordsRef = useRef<React.ReactNode[]>([]); // 예상되는 단어들을 <SkyblueText> 컴포넌트로 감싸서 관리
+  const expectedWordsRef = useRef<string[]>([]); // 예상되는 단어들을 <SkyblueText> 컴포넌트로 감싸서 관리
   const wordsLengthRef = useRef<number>(0);
+  const checkIdxRef = useRef<number>(0);
+  const totalCurScriptLength = useRef<number>(0);
   const [accuracy, setAccuracy] = useState<number>(0); // 학습 결과 - 정확도
   const [totalCount, setTotalCount] = useState<number>(0); // 학습 진행 - 총 단어 개수
   const [correctCount, setCorrectCount] = useState<number>(0); // 학습 진행 - 맞은 단어 개수
   const location = useLocation();
   const paths = location.pathname.split('/');
   const scriptid = Number(paths[paths.length - 1]);
-  const memberid = 2;
+  const memberid = 1;
 
   // 오디오 및 웹소켓 관련
   const [isTalking, setIsTalking] = useState(false);
@@ -79,6 +83,7 @@ const Practice = () => {
       const expectedWords = curScripts[step - 1].split(' ').map((value: string, index: number) => {
         return <SkyblueText key={index}>{value}</SkyblueText>;
       });
+      totalCurScriptLength.current = expectedWordsRef.current.length;
       setCurScript(expectedWords);
     };
 
@@ -92,8 +97,20 @@ const Practice = () => {
   const handleRecordBtn = useCallback(() => {
     if (status === 0) {
       startRecognizingVoice();
+    } else if (status === 1) {
+      console.log('녹음 종료 시도!');
+      setStatus(2);
+      endRecognizingVoice();
+      webSocket.current?.send(JSON.stringify({ type: 'END_SENTENCE' }));
     }
   }, [status]);
+
+  const endWebSocket = useCallback(() => {
+    if (webSocket.current) {
+      webSocket.current.close();
+      webSocket.current = null;
+    }
+  }, []);
 
   const endRecognizingVoice = useCallback(() => {
     if (stream.current) {
@@ -112,16 +129,12 @@ const Practice = () => {
       mediaRecorder.current.stop();
       mediaRecorder.current = null;
     }
-    if (webSocket.current) {
-      webSocket.current.close();
-      webSocket.current = null;
-    }
-    setStatus(0);
   }, []);
 
   const startRecognizingVoice = useCallback(() => {
     const start = async () => {
       endRecognizingVoice();
+      endWebSocket();
       console.log('107번째 줄에서 close가 발생했습니다!');
       webSocket.current = new WebSocket('ws://54.180.116.11:8080/ws/stt');
 
@@ -132,6 +145,7 @@ const Practice = () => {
             token: `Bearer ${import.meta.env.VITE_ACCESS_TOKEN}`,
             memberId: memberid,
             scriptId: scriptid,
+            mode: 'NORMAL',
           }),
         );
         setTimeout(async () => {
@@ -191,6 +205,7 @@ const Practice = () => {
           } catch (error) {
             console.error(error);
             endRecognizingVoice();
+            endWebSocket();
             console.log('175번째 줄에서 close가 발생했습니다!');
             setStatus(0);
           }
@@ -200,54 +215,73 @@ const Practice = () => {
       webSocket.current.onmessage = e => {
         try {
           const data = JSON.parse(e.data);
+          console.log(data);
           if (data.type === 'AUTH_OK') {
             console.log('🔐 인증 성공');
           } else if (data.type === 'ERROR') {
             console.error(`❌ 오류: ${data.message}`);
             endRecognizingVoice();
+            endWebSocket();
             console.log('190번째 줄에서 close가 발생했습니다!');
-          } else {
-            if (data.final) {
-              setStatus(2);
-              setTimeout(() => {
-                setStatus(3);
-                setCurScript(
-                  data.words.map((info: Record<string, string>, index: number) => {
-                    let el = null;
-                    if (info.word === '' && info.expected !== '') {
-                      el = <RedText key={index}>{info.expected}</RedText>;
-                    } else if (info.word === info.expected) {
-                      el = <BlueText key={index}>{info.word}</BlueText>;
-                    }
-                    return el ? [el, ' '] : []; // 스팬 뒤에 공백 노드 하나
-                  }),
-                );
-                setTimeout(() => {
-                  setStatus(5);
-                  setAccuracy(Math.floor(data.accuracy * 1000) / 10);
-                  setCorrectCount(data.correctCount);
-                  setTotalCount(data.totalCount);
-                }, 5000);
-              }, 3000);
-              endRecognizingVoice();
-              console.log('206번째 줄에서 close가 발생했습니다!');
-            } else {
-              console.log('📩 인식 결과:', data.transcript);
-              const curWords = [...curScriptRef.current];
-              const subwords = data.transcript.split(' ');
-              if (subwords.length > wordsLengthRef.current) {
-                for (let i = wordsLengthRef.current; i < subwords.length; i++) {
-                  curWords[i] = <BlueText>{expectedWordsRef.current[i]}</BlueText>;
-                }
-                curScriptRef.current = curWords;
-                setCurScript(curScriptRef.current);
-                wordsLengthRef.current = subwords.length;
+          } else if (data.type === 'INTERIM_FINAL') {
+            console.log('💡 최종 인식 결과:', data.transcript);
+            checkIdxRef.current += wordsLengthRef.current;
+            wordsLengthRef.current = 0;
+          } else if (data.type === 'INTERIM') {
+            console.log('📩 인식 결과:', data.transcript);
+            const curWords = [...curScriptRef.current];
+            const subwords = data.transcript.split(' ');
+            if (subwords.length > wordsLengthRef.current) {
+              for (
+                let i = wordsLengthRef.current + checkIdxRef.current;
+                i < 39 && i < subwords.length + checkIdxRef.current;
+                i++
+              ) {
+                curWords[i] = <BlueText key={i}>{expectedWordsRef.current[i]}</BlueText>;
               }
+              curScriptRef.current = curWords;
+              setCurScript(curScriptRef.current);
+              wordsLengthRef.current = subwords.length;
             }
+          } else if (data.type === 'FINAL_FLUSH') {
+            if (webSocket.current && webSocket.current.readyState === webSocket.current.OPEN) {
+              console.log('녹음 종료! 결과 전송 중...');
+              setTimeout(() => {
+                webSocket.current?.close();
+                webSocket.current = null;
+                endWebSocket();
+              }, 1000);
+            }
+            setTimeout(() => {
+              setStatus(3);
+              const words = letsCheckSpokenWords(data.words, expectedWordsRef.current);
+              let correctWordsCount = 0;
+              setCurScript(
+                words.map((word: MappedResult, index: number) => {
+                  if (word.correct) {
+                    correctWordsCount += 1;
+                    return <BlueText key={index}>{word.word}</BlueText>;
+                  }
+                  return <RedText key={index}>{word.expected}</RedText>;
+                }),
+              );
+              setTimeout(() => {
+                setStatus(5);
+                setAccuracy(Math.floor((correctWordsCount / words.length) * 1000) / 10);
+                setCorrectCount(correctWordsCount);
+                setTotalCount(words.length);
+              }, 4000);
+            }, 3000);
+            endRecognizingVoice();
+            endWebSocket();
+            console.log('206번째 줄에서 close가 발생했습니다!');
+          } else {
+            console.log('sibal');
           }
         } catch (err) {
           console.warn('❌ 응답 처리 중 오류:', err);
           endRecognizingVoice();
+          endWebSocket();
           console.log('215번째 줄에서 close가 발생했습니다!');
         }
       };
@@ -255,6 +289,7 @@ const Practice = () => {
       webSocket.current.onerror = e => {
         console.error('🚨 WebSocket 에러:', e);
         endRecognizingVoice();
+        endWebSocket();
         console.log('222번째 줄에서 close가 발생했습니다!');
       };
 
@@ -265,6 +300,7 @@ const Practice = () => {
         }
         console.log('🔌 WebSocket 연결 종료');
         endRecognizingVoice();
+        endWebSocket();
         console.log('232번째 줄에서 close가 발생했습니다!');
       };
     };

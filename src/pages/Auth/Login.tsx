@@ -49,6 +49,7 @@ const Input = styled.input`
   border-radius: 6px;
   font-size: 16px;
   background: #f7faff;
+  box-sizing: border-box;
 `;
 
 const Button = styled.button`
@@ -61,6 +62,7 @@ const Button = styled.button`
   font-size: 18px;
   cursor: pointer;
   margin-bottom: 12px;
+  box-sizing: border-box;
 `;
 
 const Row = styled.div`

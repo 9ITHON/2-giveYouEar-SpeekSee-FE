@@ -12,6 +12,7 @@ const Select = () => {
       description: '자신의 닉네임을 넣어 자기소개서를 연습해보세요!',
       detail: (
         <Difficulty
+          title="자기소개"
           category="SELF_INTRODUCTION"
           isLoading={isLoading}
           setIsLoading={setIsLoading}
@@ -21,17 +22,17 @@ const Select = () => {
     {
       title: '날씨',
       description: '다양한 날씨 상황을 소개하는 것을 연습해보세요!',
-      detail: <Difficulty category="WEATHER" isLoading={isLoading} setIsLoading={setIsLoading} />,
+      detail: <Difficulty title="날씨" category="WEATHER" isLoading={isLoading} setIsLoading={setIsLoading} />,
     },
     {
       title: '뉴스',
       description: '기사를 읽으며 실제 상황을 설명하는 것을 연습해보세요!',
-      detail: <Difficulty category="NEWS" isLoading={isLoading} setIsLoading={setIsLoading} />,
+      detail: <Difficulty title="뉴스" category="NEWS" isLoading={isLoading} setIsLoading={setIsLoading} />,
     },
     {
       title: '일상',
       description: '일상생활 속 말하기를 연습해보세요!',
-      detail: <Difficulty category="DAILY" isLoading={isLoading} setIsLoading={setIsLoading} />,
+      detail: <Difficulty title="일상" category="DAILY" isLoading={isLoading} setIsLoading={setIsLoading} />,
     },
   ];
   return (

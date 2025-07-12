@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import styled from 'styled-components';
 import createDailyScript from '../../../apis/createDailyScript';
 import { useNavigate } from 'react-router-dom';
+import { dummyScript } from '../constants/script';
 
 const DifficultyStyle = styled.div`
   display: flex;
@@ -21,10 +22,12 @@ const DifficultButton = styled.span`
 `;
 
 const Difficulty = ({
+  title,
   category,
   isLoading,
   setIsLoading,
 }: {
+  title: string;
   category: string;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -33,9 +36,15 @@ const Difficulty = ({
   const goToThePractice = useCallback(async (category: string, difficulty: string) => {
     try {
       setIsLoading(prev => !prev);
-      const response = await createDailyScript(category, difficulty);
+      const content = dummyScript[category as keyof typeof dummyScript][difficulty as 'HARD' | 'MEDIUM' | 'EASY'];
+      console.log(title);
+      console.log(content[Math.floor(Math.random() * 3)])
+      console.log(category);
+      console.log(difficulty);
+      const response = await createDailyScript(title, content[Math.floor(Math.random() * 3)], category, difficulty);
       if (response) {
         const data = response.data.data;
+        console.log(data);
         setIsLoading(prev => !prev);
         navigate(`/script/${data.id}`, {
           state: {

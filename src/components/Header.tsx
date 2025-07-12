@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import Logo from '../assets/png/logo.png';
 
 const HeaderStyle = styled.header`
   width: 39em;
@@ -13,6 +14,8 @@ const HeaderStyle = styled.header`
     width: 100vw;
   }
 `;
+
+const AppLogo = styled.div``;
 
 const Points = styled.div`
   display: flex;
@@ -50,7 +53,9 @@ const UserPoints = styled.div`
 const Header = () => {
   return (
     <HeaderStyle>
-      <div style={{ width: '84px', height: '42px', background: '#d9d9d9' }}></div>
+      <AppLogo>
+        <img src={Logo} alt="이어줄게" width="90.59" height="24.28" />
+      </AppLogo>
       <Points>
         <PointsLogo>P</PointsLogo>
         <UserPoints>33,550</UserPoints>

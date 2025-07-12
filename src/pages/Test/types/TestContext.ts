@@ -5,5 +5,5 @@ export interface TestContext {
   introStatus: number;
   setIntroStatus: React.Dispatch<React.SetStateAction<number>>;
   script: React.ReactNode;
-  problemNo: number;
+  step: number;
 }

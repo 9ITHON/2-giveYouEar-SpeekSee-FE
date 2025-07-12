@@ -12,6 +12,11 @@ import PracticeDescription from './components/PracticeDescription';
 import Result from './components/Result';
 import type { TestContext } from './types/TestContext';
 import getLevelTestScripts from '../../apis/getLevelTestScripts';
+import BlueText from '../Script/components/BlueText';
+import { letsCheckSpokenWords } from '../Script/utils/letsCheckSpokenWords';
+import type { MappedResult } from '../Script/types/MappedResult';
+import RedText from '../Script/components/RedText';
+import SkyblueText from '../Script/components/SkyblueText';
 
 const TestStyle = styled.div`
   height: 100%;
@@ -36,14 +41,32 @@ const Test = () => {
    * 1: 녹음 중
    * 2: 녹음 종료/완료
    * 3: 분석 중
-   * 4: 다음 문제/다시 연습
-   * 5: 모든 문제 해결
+   * 4: 다음 화면으로 이동 텍스트
+   * 5: 나가기 버튼 활성화
    */
   const [status, setStatus] = useState<number>(0);
+  /**
+   * outroStatus 소개
+   * --------------
+   * -1: 연습 시작, 연습 중
+   * 0~2: 연습 완료
+   * 0: 분석 중
+   * 1: 결과 확인
+   * 2: 나가기 버튼 활성화
+   */
+  const [outroStatus, setOutroStatus] = useState<number>(-1);
   const [isClosed, setIsClosed] = useState<boolean>(false);
-  const [problemNo, setProblemNo] = useState<number>(1);
+  const [step, setStep] = useState<number>(1); // 학습 대본 단계
   const [scripts, setScripts] = useState<React.ReactNode[]>([]);
-  const [accuracy, setAccuracy] = useState<number>(0);
+  const [curScript, setCurScript] = useState<React.ReactElement[]>([]);
+  const curScriptRef = useRef<React.ReactElement[]>([]);
+  const expectedWordsRef = useRef<string[]>([]); // 예상되는 단어들을 <SkyblueText> 컴포넌트로 감싸서 관리
+  const wordsLengthRef = useRef<number>(0);
+  const checkIdxRef = useRef<number>(0);
+  const totalCurScriptLength = useRef<number>(0);
+  const [accuracies, setAccuracies] = useState<number[]>([0, 0, 0]);
+  const [totalCounts, setTotalCounts] = useState<number[]>([0, 0, 0]); // 학습 진행 - 총 단어 개수
+  const [correctCounts, setCorrectCounts] = useState<number[]>([0, 0, 0]); // 학습 진행 - 맞은 단어 개수
   const location = useLocation();
   const paths = location.pathname.split('/');
   const scriptid = Number(paths[paths.length - 1]);
@@ -58,25 +81,46 @@ const Test = () => {
   const audioContext = useRef<AudioContext | null>(null);
   const processor = useRef<AudioWorkletNode | null>(null);
 
+  // 1) 한 번만 데이터 가져오기
   useEffect(() => {
-    const curScripts = [...scripts];
-    const getScripts = async () => {
-      try {
-        const response = await getLevelTestScripts();
-        const data = response.data.data;
-        console.log(data);
-        // data.map((value: Record<string, string | number>) => {
-        //   curScripts.push(value.content);
-        // })
-        curScripts.push(data.content);
-        console.log(curScripts);
-        setScripts(curScripts);
-      } catch (error) {
-        console.log(curScripts);
+    (async () => {
+      const data = await getLevelTestScripts()
+        .then(res => (res.data.success ? res.data.data.content : null))
+        .catch(err => {
+          console.error(err);
+          return null;
+        });
+
+      if (!data || data.length === 0) {
+        console.warn('스크립트가 없습니다.');
+        return;
       }
-    };
-    getScripts();
+
+      // scripts 상태에 "문자열 배열"로 저장
+      setScripts(data.map((item: any) => item.content as string));
+    })();
   }, []);
+
+  // 2) scripts 또는 step이 바뀔 때마다 curScript/expectedWords 계산
+  useEffect(() => {
+    // 안전하게 길이 확인
+    if (scripts.length === 0 || step < 1 || step > scripts.length) {
+      return;
+    }
+
+    const text = scripts[step - 1]; // 반드시 string
+    const words = text.split(' '); // ["오늘의", "날씨는", "..."]
+
+    expectedWordsRef.current = words;
+    totalCurScriptLength.current = words.length;
+    checkIdxRef.current = 0;
+
+    setCurScript(words.map((w: string, i: number) => <SkyblueText key={i}>{w}</SkyblueText>));
+  }, [scripts, step]);
+
+  useEffect(() => {
+    curScriptRef.current = curScript;
+  }, [curScript]);
 
   const handleRecordBtn = useCallback(() => {
     if (introStatus !== -1) {
@@ -86,10 +130,15 @@ const Test = () => {
     if (status === 0) {
       startRecognizingVoice();
     } else if (status === 1) {
+      console.log('녹음 종료 시도!');
       setStatus(2);
+      endRecognizingVoice();
+      webSocket.current?.send(JSON.stringify({ type: 'END_SENTENCE' }));
       setTimeout(() => {
-        setProblemNo(prev => {
+        setStep(prev => {
           if (prev === 2) {
+            setOutroStatus(0);
+            navigate('/test/done');
             return 1;
           } else {
             setStatus(0);
@@ -97,9 +146,16 @@ const Test = () => {
             return prev + 1;
           }
         });
-      }, 2000);
+      }, 3000);
     }
   }, [status]);
+
+  const endWebSocket = useCallback(() => {
+    if (webSocket.current) {
+      webSocket.current.close();
+      webSocket.current = null;
+    }
+  }, []);
 
   const endRecognizingVoice = useCallback(() => {
     if (stream.current) {
@@ -118,12 +174,6 @@ const Test = () => {
       mediaRecorder.current.stop();
       mediaRecorder.current = null;
     }
-    if (webSocket.current) {
-      webSocket.current.send(JSON.stringify({ type: 'END_SENTENCE' }));
-      setTimeout(() => webSocket.current?.close(), 300);
-      webSocket.current = null;
-    }
-    setStatus(0);
   }, []);
 
   const startRecognizingVoice = useCallback(() => {
@@ -199,53 +249,102 @@ const Test = () => {
           } catch (error) {
             console.error(error);
             endRecognizingVoice();
+            endWebSocket();
             setStatus(0);
           }
-        }, 1000);
+        }, 300);
       };
 
       webSocket.current.onmessage = e => {
         try {
           const data = JSON.parse(e.data);
+          console.log(data);
           if (data.type === 'AUTH_OK') {
             console.log('🔐 인증 성공');
           } else if (data.type === 'ERROR') {
             console.error(`❌ 오류: ${data.message}`);
             endRecognizingVoice();
-          } else {
-            if (data.final) {
-              setStatus(2);
-              setTimeout(() => {
-                setStatus(3);
-                setTimeout(() => {
-                  setStatus(4);
-                  let sum = 0;
-                  data.words.forEach((value: Record<string, string | number | boolean>) => {
-                    sum += Number(value.isCorrect);
-                  });
-                  setAccuracy(sum / data.words.length);
-                });
-              }, 2000);
-              endRecognizingVoice();
-            } else {
-              console.log('전달받은 데이터 전체:', data);
-              console.log('📩 인식 결과:', data.transcript);
+            endWebSocket();
+            console.log('190번째 줄에서 close가 발생했습니다!');
+          } else if (data.type === 'INTERIM_FINAL') {
+            console.log('💡 최종 인식 결과:', data.transcript);
+            checkIdxRef.current += wordsLengthRef.current;
+            wordsLengthRef.current = 0;
+          } else if (data.type === 'INTERIM') {
+            console.log('📩 인식 결과:', data.transcript);
+            const curWords = [...curScriptRef.current];
+            const subwords = data.transcript.split(' ');
+            if (subwords.length > wordsLengthRef.current) {
+              for (
+                let i = wordsLengthRef.current + checkIdxRef.current;
+                i < 39 && i < subwords.length + checkIdxRef.current;
+                i++
+              ) {
+                curWords[i] = <BlueText key={i}>{expectedWordsRef.current[i]}</BlueText>;
+              }
+              curScriptRef.current = curWords;
+              setCurScript(curScriptRef.current);
+              wordsLengthRef.current = subwords.length;
             }
+          } else if (data.type === 'FINAL_FLUSH') {
+            if (webSocket.current && webSocket.current.readyState === webSocket.current.OPEN) {
+              console.log('녹음 종료! 결과 전송 중...');
+              setTimeout(() => {
+                webSocket.current?.close();
+                webSocket.current = null;
+                endWebSocket();
+              }, 2000);
+            }
+            setTimeout(() => {
+              const words = letsCheckSpokenWords(data.words, expectedWordsRef.current);
+              let correctWordsCount = 0;
+              setCurScript(
+                words.map((word: MappedResult, index: number) => {
+                  if (word.correct) {
+                    correctWordsCount += 1;
+                    return <BlueText key={index}>{word.word}</BlueText>;
+                  }
+                  return <RedText key={index}>{word.expected}</RedText>;
+                }),
+              );
+              const curAccuracies = [...accuracies];
+              const curCorrectCounts = [...correctCounts];
+              const curTotalCounts = [...totalCounts];
+              curAccuracies[step - 1] = Math.floor((correctWordsCount / words.length) * 1000) / 10;
+              curCorrectCounts[step - 1] = correctWordsCount;
+              curTotalCounts[step - 1] = words.length;
+              setAccuracies(curAccuracies);
+              setCorrectCounts(curCorrectCounts);
+              setTotalCounts(curTotalCounts);
+              if (step === scripts.length) {
+                setOutroStatus(0);
+                setStatus(4);
+              }
+            }, 3000);
+            endRecognizingVoice();
+            endWebSocket();
+            console.log('206번째 줄에서 close가 발생했습니다!');
+          } else {
+            console.log('sibal');
           }
         } catch (err) {
           console.warn('❌ 응답 처리 중 오류:', err);
           endRecognizingVoice();
+          endWebSocket();
+          console.log('215번째 줄에서 close가 발생했습니다!');
         }
       };
 
       webSocket.current.onerror = e => {
         console.error('🚨 WebSocket 에러:', e);
         endRecognizingVoice();
+        endWebSocket();
       };
 
       webSocket.current.onclose = () => {
         console.log('🔌 WebSocket 연결 종료');
         endRecognizingVoice();
+        endWebSocket();
       };
     };
     start();
@@ -254,8 +353,8 @@ const Test = () => {
     status,
     introStatus,
     setIntroStatus,
-    script: scripts[problemNo - 1],
-    problemNo,
+    script: scripts[step - 1],
+    step,
   };
   return (
     <TestStyle>
@@ -268,10 +367,12 @@ const Test = () => {
         <img src={CloseButtonImg} alt="daily-scripts-page-close-button" width="18" height="18" />
       </CloseButton>
       <ScriptSection>
-        <ProgressBar step={problemNo} totalStep={scripts.length} />
+        <ProgressBar step={step} totalStep={scripts.length} />
         <PracticeDescription introStatus={introStatus} status={status} />
         <Outlet context={contextValue} />
-        {status === 4 && <Result accuracy={accuracy} />}
+        {status === 4 && (
+          <Result accuracies={accuracies} totalCounts={totalCounts} correctCounts={correctCounts} />
+        )}
       </ScriptSection>
       <Divider />
       <ActivityButtons

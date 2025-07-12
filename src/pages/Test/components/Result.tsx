@@ -1,62 +1,76 @@
 import styled from 'styled-components';
+import Text from './Text';
+import Measure from './Measure';
+import Accuracy from './Accuracy';
 
 const ResultStyle = styled.div`
-  width: 205px;
   margin-top: 10px;
   border: 1px solid #6dabfd;
   border-radius: 16px;
-  padding: 0 7px;
+  padding: 12px;
   background: #ffffff;
 `;
 
-const AccuracyText = styled.span`
-  display: block;
-  text-align: center;
-  color: #81b7ff;
-  font-size: 12px;
-`;
-
-const AccuracyRate = styled.h1`
-  padding-top: 12px;
-  text-align: center;
-  color: #539dff;
-  font-size: 36px;
-`;
-
-const AccuracyStyle = styled.div`
-  border-bottom: 1px solid #6dabfd;
-  padding: 24px 0px;
-`;
-
-const Accuracy = ({ accuracy }: { accuracy: number }) => {
-  return (
-    <AccuracyStyle>
-      <AccuracyText>정확도(%)</AccuracyText>
-      <AccuracyRate>{accuracy}</AccuracyRate>
-    </AccuracyStyle>
-  );
-};
-
-const CheerMessage = styled.span`
-  height: 70px;
-  margin: 16px 0 32px 0;
+const WordsCountBox = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  text-align: center;
-  color: #81b7ff;
-  font-size: 12px;
-  white-space: pre-line;
-  line-height: 1.1em;
 `;
 
-const Result = ({ accuracy }: { accuracy: number }) => {
+const WordsCount = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 21px 8px 21px;
+  & > h1 {
+    padding-top: 17px;
+    padding-bottom: 18px;
+  }
+`;
+
+const WordsCountBoxDivider = styled.div`
+  height: 89px;
+  margin: 0 8px;
+  margin-bottom: 8px;
+  border: 0.5px solid #b7d6ff;
+`;
+
+const Result = ({
+  accuracies,
+  totalCounts,
+  correctCounts,
+}: {
+  accuracies: number[];
+  totalCounts: number[];
+  correctCounts: number[];
+}) => {
+  let allTotalCounts = 0;
+  let allCorrectCounts = 0;
+  let accuracyAvg = 0;
+  totalCounts.forEach(count => {
+    allTotalCounts += count;
+  });
+  correctCounts.forEach(count => {
+    allCorrectCounts += count;
+  });
+  accuracies.forEach(accuracy => {
+    accuracyAvg += accuracy;
+  });
+  accuracyAvg /= accuracies.length;
   return (
     <ResultStyle>
-      <Accuracy accuracy={accuracy} />
-      <CheerMessage>
-        {accuracy >= 80 ? '잘하고 있어요!\n지금처럼 열심히 해주세요!' : '좀 더 잘할 수 있어요!'}
-      </CheerMessage>
+      <WordsCountBox>
+        <WordsCount>
+          <Text>전체 단어 수</Text>
+          <Measure>{allTotalCounts}</Measure>
+        </WordsCount>
+        <WordsCountBoxDivider />
+        <WordsCount>
+          <Text>맞은 단어 수</Text>
+          <Measure>{allCorrectCounts}</Measure>
+        </WordsCount>
+      </WordsCountBox>
+      <Accuracy accuracy={Math.floor(accuracyAvg * 1000) / 10} />
     </ResultStyle>
   );
 };

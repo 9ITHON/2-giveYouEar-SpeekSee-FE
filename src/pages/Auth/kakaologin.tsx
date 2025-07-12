@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import logo from '../../assets/png/logo.png';
 import mainApi from '../../apis/mainApi';
+import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   width: 400px;
@@ -63,7 +64,7 @@ const KakaoLogin : React.FC= () =>{
     birthdate:'',
   });
   const [isLoading, setIsLoading]= useState(false);
-  
+  const navigate = useNavigate();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setForm({ ...form, [e.target.id]: e.target.value });
     };
@@ -112,8 +113,9 @@ const KakaoLogin : React.FC= () =>{
           onChange={handleChange}
           placeholder="생년월일을 입력해주세요."
         ></Input>
-        <Button type="button" onClick={() => (window.location.href = '/')}>
-          (어플명) 시작하기
+        <Button type="button" onClick={() => navigate("/")}>
+          
+          {isLoading ? "정보 전송 중..." : '(어플명) 시작하기'}
         </Button>
       </form>
     </Container>

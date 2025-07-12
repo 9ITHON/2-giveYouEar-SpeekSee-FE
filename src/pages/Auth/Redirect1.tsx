@@ -9,7 +9,7 @@ const Redirect1 = ( { provider }: {provider: string}) => {
       try{
         const res = await mainApi.post('/api/auth/oauth/login', {
         code: code,
-        provider: "GOOGLE",
+        provider: provider,
       });
       const { accessToken, refreshToken } = res.data;
       

@@ -39,9 +39,8 @@ function App() {
           <Route element={<Main />}>
             <Route path="/" element={<Home />} />
             <Route path="attendance" element={<Attendance />} />
-            <Route path="study" element={<Study />}>
-              <Route path="review" element={<Review />} />
-            </Route>
+            <Route path="study" element={<Study />} />
+            <Route path="study/review" element={<Review />} />
             <Route path="script" element={<Category />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="ranking" element={<Ranking />} />

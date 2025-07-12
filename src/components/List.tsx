@@ -1,4 +1,6 @@
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import Bookmark from './Bookmark';
 
 const ListStyle = styled.div`
   margin-bottom: 12px;
@@ -6,6 +8,8 @@ const ListStyle = styled.div`
   border-radius: 8px;
   padding: 18px 16px;
   color: #6dabfd;
+  position: relative;
+  cursor: pointer;
 `;
 
 const ListTitle = styled.h1`
@@ -36,16 +40,24 @@ const List = ({
   title,
   description,
   detail,
+  active,
+  onClick,
 }: {
   title: string;
-  description: string;
-  detail: React.ReactNode;
+  description?: string | undefined;
+  detail?: React.ReactNode | undefined;
+  active?: boolean | undefined;
+  onClick?: () => void;
 }) => {
+  const location = useLocation();
   return (
     <ListStyle>
-      <ListTitle>{title}</ListTitle>
-      <ListDescription>{description}</ListDescription>
-      <ListDetail>{detail}</ListDetail>
+      {location.pathname === '/study' && <Bookmark active={active} />}
+      <div onClick={onClick}>
+        <ListTitle>{title}</ListTitle>
+        <ListDescription>{description}</ListDescription>
+        <ListDetail>{detail}</ListDetail>
+      </div>
     </ListStyle>
   );
 };

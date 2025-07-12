@@ -19,20 +19,17 @@ const Main = () => {
     '/': {
       nav: 'home',
     },
-    '/study': {
-      nav: 'study',
-      pagename: "학습"
-    },
     '/script': {
       nav: 'home',
     },
-    "/attendance": {
-      nav: 'home',
-      pagename: "출석체크"
+    '/study': {
+      nav: 'study',
+      pagename: '학습',
     },
-    '/review': {
-      nav: 'review',
-      pagename: '복습 훈련',
+    '/study/review': { nav: 'study', pagename: '복습노트' },
+    '/attendance': {
+      nav: 'home',
+      pagename: '출석체크',
     },
     '/ranking': { nav: 'ranking', pagename: '순위' },
     '/settings': { nav: 'settings', pagename: '설정' },

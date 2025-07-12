@@ -34,6 +34,7 @@ const Practice = () => {
    * 4: 다음 문제/다시 연습
    * 5: 모든 문제 해결
    */
+
   const [status, setStatus] = useState<number>(0); // 학습 진행 상태
   const [isClosed, setIsClosed] = useState<boolean>(false); // 대본 연습 창 닫기 버튼 클릭 확인
   const [step, setStep] = useState<number>(1); // 학습 대본 단계
@@ -121,7 +122,7 @@ const Practice = () => {
   useEffect(() => {
     curScriptRef.current = curScript;
   }, [curScript]);
-
+      
   const handleRecordBtn = useCallback(() => {
     if (status === 0) {
       startRecognizingVoice();

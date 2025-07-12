@@ -9,7 +9,7 @@ const createDailyScript = (category: string, difficulty: string) => {
     },
     {
       headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_ACCESS_TOKEN}`,
+        Authorization: `Bearer ${import.meta.env.VITE_ACCESS_TOKEN}`
       },
     },
   );

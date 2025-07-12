@@ -20,7 +20,12 @@ const ScriptSectionStyle = styled.div`
   height: 60em;
 `;
 
-const ScriptSectionWrapper = styled.div``;
+const ScriptSectionWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
 
 const PracticeDescription = styled.div`
   margin-top: 3rem;
@@ -35,8 +40,8 @@ const ScriptContent = styled.div<ScriptContentProps>`
   align-items: ${props => (props.$hasSpan ? 'unset' : 'center')};
   width: 300px;
   height: ${props => (props.$status >= 4 ? 100 : 300)}px;
-  margin-top: 53px;
   text-align: center;
+  top: 330px;
   color: #a2caff;
   font-size: 16px;
   white-space: normal; /* 연속된 공백은 무시하고, 일반적인 단어 단위 래핑 */
@@ -44,6 +49,7 @@ const ScriptContent = styled.div<ScriptContentProps>`
   word-break: 'keep-all';
   line-height: 1.1em;
   overflow-y: auto;
+  position: absolute;
   /* span 사이 spacing */
   & > span + span {
     margin-left: 0.25em;
@@ -110,7 +116,7 @@ const ScriptSection = ({
         <ReviewDescription>(강조된 부분을 유의하며 읽어주세요!)</ReviewDescription>
       )}
       <ScriptSectionWrapper>
-        {(status !== 5 || (status === 5 && path === 'script')) && (
+        {(status !== 5) && (
           <ScriptContent $status={status} $hasSpan={hasSpanElement(script)}>
             {script ? script : '준비 중...'}
           </ScriptContent>

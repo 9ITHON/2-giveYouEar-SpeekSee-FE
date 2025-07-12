@@ -4,7 +4,7 @@ import Measure from './Measure';
 import Accuracy from './Accuracy';
 
 const ResultStyle = styled.div`
-  margin-top: 10px;
+  margin-top: 130px;
   border: 1px solid #6dabfd;
   border-radius: 16px;
   padding: 12px;

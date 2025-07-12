@@ -130,7 +130,9 @@ const Practice = () => {
       console.log('녹음 종료 시도!');
       setStatus(2);
       endRecognizingVoice();
-      webSocket.current?.send(JSON.stringify({ type: 'END_SENTENCE' }));
+      setTimeout(() => {
+        webSocket.current?.send(JSON.stringify({ type: 'END_SENTENCE' }));
+      }, 3000);
     }
   }, [status]);
 

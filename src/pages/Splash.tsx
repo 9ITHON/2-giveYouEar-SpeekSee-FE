@@ -1,7 +1,7 @@
 // src/pages/Splash.tsx
 import React from "react";
 import styled from "styled-components";
-import logoImg from "../assets/png/logo.png";         // 로고 이미지
+import logoImg from "../assets/png/logo.png";      
 import 목 from "../assets/png/목.png";
 import 소 from "../assets/png/소.png";
 import 리 from "../assets/png/리.png";
@@ -10,7 +10,7 @@ import 하 from "../assets/png/하.png";
 import 나 from "../assets/png/나.png";
 import 되 from "../assets/png/되.png";
 import 어 from "../assets/png/어.png";
-import characterImg from "../assets/png/캐릭터.png";   // 캐릭터 이미지
+import characterImg from "../assets/png/캐릭터.png"; 
 
 const SplashWrapper = styled.div`
   width: 400px;
@@ -47,7 +47,7 @@ const CenterBox = styled.div`
 `;
 
 const Character = styled.img`
-  width: 120px;
+  width: 200px;
   z-index: 2;
 `;
 
@@ -57,7 +57,7 @@ const Cylinder = styled.div`
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
-  height: 120px;
+  height: 200px;
   background: #b3d0f7;
   border-top-left-radius: 50% 60px;
   border-top-right-radius: 50% 60px;

@@ -4,8 +4,10 @@ import CloseButtonImg from '../../assets/png/daily-script-button.png';
 import CloseButton from './components/CloseButton';
 import Divider from './components/Divider';
 import ActivityButtons from './components/ActivityButtons';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Modal from './components/Modal';
+import { useLocation } from 'react-router-dom';
+import getOneScript from '../../apis/getOneScript';
 
 const PracticeStyle = styled.div`
   height: 100%;
@@ -26,11 +28,27 @@ const Practice = () => {
   const [status, setStatus] = useState<number>(0);
   const [isClosed, setIsClosed] = useState<boolean>(false);
   const [problemNo, setProblemNo] = useState<number>(1);
-  const scripts: React.ReactNode[] = [
-    '뻗은가지 굽은가지 구부러진 가지 가지가지의\n가지 올라가지 늦가지 찐가지 달린가지\n조롱조롱 맺힌 가지 열린 가지 달린 가지\n도롱조롱 달린 가지 젊은 가지 늙은 가지\n나물할 가지 냉국 탈 가지 가지각색\n가여놓아도 나 못 먹긴 마찬가지.',
-    '간장장의 공장장은 간 공장장이고\n된장장의 공장장은 된 공장장이다.',
-    '비전공자도 끝까지 완주하는\n국가유산급 프론트엔드 교육 등장',
-  ];
+  const location = useLocation();
+  const [scripts, setScripts] = useState<React.ReactNode[]>([]);
+  useEffect(() => {
+    const getScript = async () => {
+      try {
+        const path = location.pathname.split('/');
+        const response = await getOneScript(Number(path[path.length - 1]));
+        return response?.data.data.content;
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    const curScripts = [...scripts];
+    if (location.state === null) {
+      const newScript = getScript();
+      curScripts.push(newScript);
+    } else {
+      curScripts.push(location.state.content);
+    }
+    setScripts(curScripts);
+  }, []);
   const handleRecordBtn = useCallback(() => {
     if (status === 0) {
       setStatus(1);
@@ -46,7 +64,7 @@ const Practice = () => {
   }, [status]);
   return (
     <PracticeStyle>
-      {isClosed && <Modal setIsClosed={setIsClosed}/>}
+      {isClosed && <Modal setIsClosed={setIsClosed} />}
       <CloseButton
         onClick={() => {
           setIsClosed(prev => !prev);
@@ -54,7 +72,12 @@ const Practice = () => {
       >
         <img src={CloseButtonImg} alt="daily-scripts-page-close-button" width="18" height="18" />
       </CloseButton>
-      <ScriptSection status={status} problemNo={problemNo} script={scripts[problemNo - 1]} />
+      <ScriptSection
+        status={status}
+        problemNo={problemNo}
+        totalStep={scripts.length}
+        script={scripts[problemNo - 1]}
+      />
       <Divider />
       <ActivityButtons
         status={status}

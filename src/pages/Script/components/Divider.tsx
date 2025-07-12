@@ -6,7 +6,7 @@ const Divider = styled.div`
   border-radius: 100%;
   background-color: #c9e0ff;
   position: absolute;
-  bottom: 204px;
+  bottom: 248px;
 `;
 
 export default Divider;

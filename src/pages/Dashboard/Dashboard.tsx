@@ -22,7 +22,7 @@ const Dashboard = () => {
     { name: '발화 안정성', value: 45 },
     { name: '억양/강세 분석', value: 50 },
     { name: '문장 처리 능력', value: 49 },
-    { name: '반복 학습 점수 개선', value: 64 },
+    { name: '학습 점수 개선', value: 64 },
   ];
   return (
     <DashboardStyle>

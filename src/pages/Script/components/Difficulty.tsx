@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import createDailyScript from '../../../apis/createDailyScript';
 import { useNavigate } from 'react-router-dom';
 import { dummyScript } from '../constants/script';
+import type { Category } from '../../../apis/types/Catogory';
+import type { DifficultyLevel } from '../../../apis/types/DifficultyLevel';
 
 const DifficultyStyle = styled.div`
   display: flex;
@@ -36,20 +38,26 @@ const Difficulty = ({
   const goToThePractice = useCallback(async (category: string, difficulty: string) => {
     try {
       setIsLoading(prev => !prev);
-      const content = dummyScript[category as keyof typeof dummyScript][difficulty as 'HARD' | 'MEDIUM' | 'EASY'];
+      const content =
+        dummyScript[category as keyof typeof dummyScript][difficulty as 'HARD' | 'MEDIUM' | 'EASY'];
       console.log(title);
-      console.log(content[Math.floor(Math.random() * 3)])
+      console.log(content[Math.floor(Math.random() * 3)]);
       console.log(category);
       console.log(difficulty);
-      const response = await createDailyScript(title, content[Math.floor(Math.random() * 3)], category, difficulty);
+      const response = await createDailyScript(
+        title,
+        content[Math.floor(Math.random() * 3)],
+        category as Category,
+        difficulty as DifficultyLevel,
+      );
       if (response) {
         const data = response.data.data;
-        console.log(data);
+        console.log(data[0]);
         setIsLoading(prev => !prev);
-        navigate(`/script/${data.id}`, {
+        navigate(`/script/${data[0].id}`, {
           state: {
-            id: data.id,
-            content: data.content,
+            id: data[0].id,
+            content: data[0].content,
           },
         });
       }
